@@ -8,7 +8,7 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
-        <title>Hello, world!</title>
+        <title>Events</title>
     </head>
     <body>
 
@@ -25,7 +25,31 @@
         <div class="container">
 
             <!-- Title -->
-            <h1>All events</h1>
+            <h1>Events</h1>
+
+            <!-- Dropdown -->
+            <div class="filter-dropdown-list">
+                <div class="btn-group">
+                    <button class="btn btn-light dropdown-toggle" type="button" id="typeDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        All type
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="typeDropdownMenuButton">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-light dropdown-toggle" type="button" id="timeDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        All time
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="timeDropdownMenuButton">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                </div>
+            </div>
 
             <!-- Event list -->
             <div id="event-list">
