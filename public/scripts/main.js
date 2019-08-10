@@ -46,72 +46,67 @@ function saveMessagingDeviceToken() {}
 const EVENT_TEMPLATE =
 '<div class="col-sm-4 mt-3">'+
     '<div class="card">'+
-        '<img id="image" class="card-img-top" src="">'+
+        '<img class="image card-img-top" src="">'+
         '<div class="card-body">'+
-            '<h5 id="name" class="card-title">d</h5>'+
-            '<h6 id="date" class="card-subtitle mb-2 text-muted">s</h6>'+
-            '<p id="description" class="card-text">s</p>'+
-            '<a id="register-button" href="#" class="btn btn-primary btn-sm">Register</a>'+
+            '<h5 class="name card-title">d</h5>'+
+            '<h6 class="date card-subtitle mb-2 text-muted">s</h6>'+
+            '<p class="description card-text">s</p>'+
+            '<a href="#" class="register-button btn btn-primary btn-sm">Register</a>'+
         '</div>'+
     '</div>'+
-'</div>'
+'</div>';
 
 function displayEventCard(id, name, timestamp, description, imageUrl, isRegistered) {
-    
-    // create or use existing event div element
-    const div = document.getElementById(id) || createEventCard(id)
+
+    // use existing or create an event card element
+    var div = $('div[data-item-id='+id+']');
+    if (div.length === 0) {
+        div = createEventCard(id);
+    } 
 
     // set up data
-    div.querySelector('#image').src = imageUrl;
-    div.querySelector('#name').textContent = name;
-    div.querySelector('#date').textContent = Date().toString();
-    div.querySelector('#description').textContent = description;
+    div.find('.image').attr('src', imageUrl);
+    div.find('.name').text(name);
+    div.find('.date').text(Date().toString());
+    div.find('.description').text(description);
 
-    const registerButton = div.querySelector('#register-button');
-    registerButton.setAttribute('data-id', id);
+    const registerButton = div.find('.register-button');
 
     // check if registered
     if (isRegistered) {
-        registerButton.textContent = "Registered!";
-        registerButton.classList.remove('btn-primary');
-        registerButton.classList.add('btn-outline-secondary');
+        registerButton.text("Registered!");
+        registerButton.removeClass('btn-primary');
+        registerButton.addClass('btn-outline-secondary');
     } else {
-        registerButton.textContent = "Register";
-        registerButton.classList.remove('btn-outline-secondary');
-        registerButton.classList.add('btn-primary');
+        registerButton.text("Register");
+        registerButton.removeClass('btn-outline-secondary');
+        registerButton.addClass('btn-primary');
     }
-
-    // Add action to register button
-    registerButton.addEventListener('click', function(e) {
-        const eventId = $(this).data().id;
-        console.log("Register/Unregister for:" + eventId)
-    });
-    
 }
 
 function createEventCard(id) {
-    // create event div element
-    const container = document.createElement('div');
-    container.innerHTML = EVENT_TEMPLATE;
 
     // add event id to div element
-    const div = container.firstChild;
-    div.setAttribute('id', id);
+    const div = $(EVENT_TEMPLATE);
+    div.attr('data-item-id', id);
+
+    // Add action to register button
+    const registerButton = div.find('.register-button');
+    registerButton.attr('data-id', id);
+    registerButton.click(function() {
+        const eventId = $(this).data().id;
+        console.log("Register/Unregister for:" + eventId);
+    });
 
     // append event to the event list
-    eventListElement.append(div)
+    $('#events').append(div);
 
-    return div
+    return div;
 }
 
 /* Main */
 
 // TODO: checkSetup();
-
-// Shortcuts to DOM Elements
-const eventListElement = document.getElementById('events');
-
-// Add actions to DOM Elements
 
 // TODO: Initialize Firebase
 loadAllEvents();
