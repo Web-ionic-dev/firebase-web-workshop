@@ -75,6 +75,10 @@ function displayEventCard(id, name, timestamp, description, imageUrl, isRegister
         registerButton.textContent = "Registered!";
         registerButton.classList.remove('btn-primary');
         registerButton.classList.add('btn-outline-secondary');
+    } else {
+        registerButton.textContent = "Register";
+        registerButton.classList.remove('btn-outline-secondary');
+        registerButton.classList.add('btn-primary');
     }
 
     // Add action to register button
