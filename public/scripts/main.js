@@ -42,6 +42,14 @@ function saveMessagingDeviceToken() {}
 
 /* UI */
 
+function authStateObserver(user) {
+    if (user) {
+        $('#sign-out').removeAttr('hidden');
+    } else {
+        $('#sign-in').removeAttr('hidden');
+    }
+}
+
 // Template for events.
 const EVENT_TEMPLATE =
 '<div class="col-sm-4 mt-3">'+
@@ -107,6 +115,10 @@ function createEventCard(id) {
 /* Main */
 
 // TODO: checkSetup();
+
+// Add actions to elements
+$('#sign-in').click(signIn);
+$('#sign-out').click(signOut);
 
 // TODO: Initialize Firebase
 loadAllEvents();
