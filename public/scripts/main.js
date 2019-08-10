@@ -26,10 +26,10 @@ function getProfilePicUrl() {}
 /* Firestore */
 
 function loadAllEvents() {
-    displayEvent('1', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png', true);
-    displayEvent('2', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png', false);
-    displayEvent('3', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png', true);
-    displayEvent('4', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png', true);
+    displayEventCard('1', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
+    displayEventCard('2', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', false);
+    displayEventCard('3', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
+    displayEventCard('4', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
 }
 
 function loadMyEvents() {}
@@ -56,19 +56,15 @@ var EVENT_TEMPLATE =
     '</div>'+
 '</div>'
 
-function displayEvent(id, name, timestamp, description, imageUrl, isRegistered) {
+function displayEventCard(id, name, timestamp, description, imageUrl, isRegistered) {
     
-    // create event div element
-    const container = document.createElement('div');
-    container.innerHTML = EVENT_TEMPLATE;
-
-    // add event id to div element
-    const div = container.firstChild;
-    div.setAttribute('id', id);
+    // create or use existing event div element
+    const div = document.getElementById(id) || createEventCard(id)
 
     // set up data
     div.querySelector('#image').src = imageUrl;
     div.querySelector('#name').textContent = name;
+    div.querySelector('#date').textContent = Date().toString();
     div.querySelector('#description').textContent = description;
 
     const registerButton = div.querySelector('#register-button');
@@ -86,10 +82,22 @@ function displayEvent(id, name, timestamp, description, imageUrl, isRegistered) 
         const eventId = $(this).data().id;
         console.log("Register/Unregister for:" + eventId)
     });
+    
+}
+
+function createEventCard(id) {
+    // create event div element
+    const container = document.createElement('div');
+    container.innerHTML = EVENT_TEMPLATE;
+
+    // add event id to div element
+    const div = container.firstChild;
+    div.setAttribute('id', id);
 
     // append event to the event list
     eventListElement.append(div)
-    
+
+    return div
 }
 
 /* Main */
