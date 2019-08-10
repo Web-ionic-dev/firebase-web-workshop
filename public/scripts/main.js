@@ -25,7 +25,12 @@ function getProfilePicUrl() {}
 
 /* Firestore */
 
-function loadAllEvents() {}
+function loadAllEvents() {
+    displayEvent('xxx', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png');
+    displayEvent('xxx', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png');
+    displayEvent('xxx', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png');
+    displayEvent('xxx', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png');
+}
 
 function loadMyEvents() {}
 
@@ -37,6 +42,37 @@ function saveMessagingDeviceToken() {}
 
 /* UI */
 
+// Template for events.
+var EVENT_TEMPLATE =
+'<div class="col-sm-4 mt-3">'+
+    '<div class="card">'+
+        '<img id="image" class="card-img-top" src="">'+
+        '<div class="card-body">'+
+            '<h5 id="name" class="card-title">d</h5>'+
+            '<h6 id="date" class="card-subtitle mb-2 text-muted">s</h6>'+
+            '<p id="description" class="card-text">s</p>'+
+            '<a href="#" class="btn btn-primary">Register</a>'+
+        '</div>'+
+    '</div>'+
+'</div>'
+
+function displayEvent(id, name, timestamp, description, imageUrl) {
+    
+    // create div
+    const container = document.createElement('div');
+    container.innerHTML = EVENT_TEMPLATE;
+
+    const div = container.firstChild;
+    div.setAttribute('id', id);
+
+    div.querySelector('#image').src = imageUrl;
+    div.querySelector('#name').textContent = name;
+    div.querySelector('#description').textContent = description;
+
+    eventListElement.append(div)
+
+}
+
 /* Main */
 
 // TODO: checkSetup();
@@ -47,3 +83,4 @@ var eventListElement = document.getElementById('events');
 // Add actions to DOM Elements
 
 // TODO: Initialize Firebase
+loadAllEvents();
