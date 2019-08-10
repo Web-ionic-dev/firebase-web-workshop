@@ -26,10 +26,10 @@ function getProfilePicUrl() {}
 /* Firestore */
 
 function loadAllEvents() {
-    displayEvent('xxx', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png');
-    displayEvent('xxx', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png');
-    displayEvent('xxx', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png');
-    displayEvent('xxx', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png');
+    displayEventCard('1', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
+    displayEventCard('2', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', false);
+    displayEventCard('3', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
+    displayEventCard('4', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
 }
 
 function loadMyEvents() {}
@@ -42,37 +42,73 @@ function saveMessagingDeviceToken() {}
 
 /* UI */
 
+function authStateObserver(user) {
+    if (user) {
+        $('#sign-out').removeAttr('hidden');
+    } else {
+        $('#sign-in').removeAttr('hidden');
+    }
+}
+
 // Template for events.
-var EVENT_TEMPLATE =
+const EVENT_TEMPLATE =
 '<div class="col-sm-4 mt-3">'+
     '<div class="card">'+
-        '<img id="image" class="card-img-top" src="">'+
+        '<img class="image card-img-top" src="">'+
         '<div class="card-body">'+
-            '<h5 id="name" class="card-title">d</h5>'+
-            '<h6 id="date" class="card-subtitle mb-2 text-muted">s</h6>'+
-            '<p id="description" class="card-text">s</p>'+
-            '<a href="#" class="btn btn-primary">Register</a>'+
+            '<h5 class="name card-title">d</h5>'+
+            '<h6 class="date card-subtitle mb-2 text-muted">s</h6>'+
+            '<p class="description card-text">s</p>'+
+            '<a href="#" class="register-button btn btn-primary btn-sm">Register</a>'+
         '</div>'+
     '</div>'+
-'</div>'
+'</div>';
 
-function displayEvent(id, name, timestamp, description, imageUrl) {
-    
-    // create event div element
-    const container = document.createElement('div');
-    container.innerHTML = EVENT_TEMPLATE;
+function displayEventCard(id, name, timestamp, description, imageUrl, isRegistered) {
 
-    // add event id to div element
-    const div = container.firstChild;
-    div.setAttribute('id', id);
+    // use existing or create an event card element
+    var div = $('div[data-item-id='+id+']');
+    if (div.length === 0) {
+        div = createEventCard(id);
+    } 
 
     // set up data
-    div.querySelector('#image').src = imageUrl;
-    div.querySelector('#name').textContent = name;
-    div.querySelector('#description').textContent = description;
+    div.find('.image').attr('src', imageUrl);
+    div.find('.name').text(name);
+    div.find('.date').text(Date().toString());
+    div.find('.description').text(description);
+
+    const registerButton = div.find('.register-button');
+
+    // check if registered
+    if (isRegistered) {
+        registerButton.text("Registered!");
+        registerButton.removeClass('btn-primary');
+        registerButton.addClass('btn-outline-secondary');
+    } else {
+        registerButton.text("Register");
+        registerButton.removeClass('btn-outline-secondary');
+        registerButton.addClass('btn-primary');
+    }
+}
+
+function createEventCard(id) {
+
+    // add event id to div element
+    const div = $(EVENT_TEMPLATE);
+    div.attr('data-item-id', id);
+
+    // Add action to register button
+    const registerButton = div.find('.register-button');
+    registerButton.attr('data-id', id);
+    registerButton.click(function() {
+        const eventId = $(this).data().id;
+        console.log("Register/Unregister for:" + eventId);
+    });
 
     // append event to the event list
-    eventListElement.append(div)
+    $('#events').append(div);
+    return div;
 }
 
 function loadIncludes() {
@@ -88,10 +124,9 @@ $(document).ready(function() {
 
 // TODO: checkSetup();
 
-// Shortcuts to DOM Elements
-var eventListElement = document.getElementById('events');
-
-// Add actions to DOM Elements
+// Add actions to elements
+$('#sign-in').click(signIn);
+$('#sign-out').click(signOut);
 
 // TODO: Initialize Firebase
 loadAllEvents();
