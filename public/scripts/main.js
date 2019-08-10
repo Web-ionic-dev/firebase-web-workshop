@@ -43,7 +43,7 @@ function saveMessagingDeviceToken() {}
 /* UI */
 
 // Template for events.
-var EVENT_TEMPLATE =
+const EVENT_TEMPLATE =
 '<div class="col-sm-4 mt-3">'+
     '<div class="card">'+
         '<img id="image" class="card-img-top" src="">'+
@@ -105,7 +105,7 @@ function createEventCard(id) {
 // TODO: checkSetup();
 
 // Shortcuts to DOM Elements
-var eventListElement = document.getElementById('events');
+const eventListElement = document.getElementById('events');
 
 // Add actions to DOM Elements
 
