@@ -11,17 +11,30 @@ function checkSetup() {
 
 /* Authentication */
 
-function initFirebaseAuth() {}
+function initFirebaseAuth() {
+    firebase.auth().onAuthStateChanged(authStateObserver);
+}
 
-function signIn() {}
+function signIn() {
+    const provider = new firebase.auth.OAuthProvider();
+    firebase.auth().signInWithPopup(provider);
+}
 
-function signOut() {}
+function signOut() {
+    firebase.auth().signOut();
+}
 
-function isUserSignIn() {}
+function isUserSignIn() {
+    return firebase.auth().currentUser;
+}
 
-function getUserName() {}
+function getUserName() {
+    return firebase.auth().currentUser.displayName;
+}
 
-function getProfilePicUrl() {}
+function getProfilePicUrl() {
+    return firebase.auth().currentUser.photoURL || '/images/profile_placeholder.png';
+}
 
 /* Firestore */
 
@@ -43,7 +56,6 @@ function saveMessagingDeviceToken() {}
 /* UI */
 
 function authStateObserver(user) {
-    console.log('auth state')
     if (user) {
         $('#sign-in').hide();
         $('#my-event').show();
@@ -138,7 +150,8 @@ $(document).ready(function() {
         $('#sign-in').click(signIn);
         $('#sign-out').click(signOut);
 
-        authStateObserver();
+        // initialize Firebase
+        initFirebaseAuth();
     })
 });
 
