@@ -16,7 +16,7 @@ function initFirebaseAuth() {
 }
 
 function signIn() {
-    const provider = new firebase.auth.OAuthProvider();
+    const provider = new firebase.auth.GoogleAuthProvider();
     firebase.auth().signInWithPopup(provider);
 }
 
