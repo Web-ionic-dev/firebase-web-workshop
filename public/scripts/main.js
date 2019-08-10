@@ -26,10 +26,10 @@ function getProfilePicUrl() {}
 /* Firestore */
 
 function loadAllEvents() {
-    displayEvent('xxx', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png');
-    displayEvent('xxx', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png');
-    displayEvent('xxx', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png');
-    displayEvent('xxx', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png');
+    displayEvent('1', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png', true);
+    displayEvent('2', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png', false);
+    displayEvent('3', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png', true);
+    displayEvent('4', 'Firebase Web Workshop', '', 'ggg', 'images/temp.png', true);
 }
 
 function loadMyEvents() {}
@@ -51,12 +51,12 @@ var EVENT_TEMPLATE =
             '<h5 id="name" class="card-title">d</h5>'+
             '<h6 id="date" class="card-subtitle mb-2 text-muted">s</h6>'+
             '<p id="description" class="card-text">s</p>'+
-            '<a href="#" class="btn btn-primary">Register</a>'+
+            '<a id="register-button" href="#" class="btn btn-primary btn-sm">Register</a>'+
         '</div>'+
     '</div>'+
 '</div>'
 
-function displayEvent(id, name, timestamp, description, imageUrl) {
+function displayEvent(id, name, timestamp, description, imageUrl, isRegistered) {
     
     // create event div element
     const container = document.createElement('div');
@@ -70,6 +70,22 @@ function displayEvent(id, name, timestamp, description, imageUrl) {
     div.querySelector('#image').src = imageUrl;
     div.querySelector('#name').textContent = name;
     div.querySelector('#description').textContent = description;
+
+    const registerButton = div.querySelector('#register-button');
+    registerButton.setAttribute('data-id', id);
+
+    // check if registered
+    if (isRegistered) {
+        registerButton.textContent = "Registered!";
+        registerButton.classList.remove('btn-primary');
+        registerButton.classList.add('btn-outline-secondary');
+    }
+
+    // Add action to register button
+    registerButton.addEventListener('click', function(e) {
+        const eventId = $(this).data().id;
+        console.log("Register/Unregister for:" + eventId)
+    });
 
     // append event to the event list
     eventListElement.append(div)
