@@ -126,11 +126,8 @@ function loadIncludes(callback) {
             d.resolve();
         });
     });
-    // When all deferreds are done (all includes loaded) do some stuff
+    // Callback when all deferreds are done
     $.when.apply(null, deferreds).done(callback);
-    // $("[data-load]").each(function() {
-    //     $(this).load($(this).data("load"));
-    // });
 }
 
 /* Main */
