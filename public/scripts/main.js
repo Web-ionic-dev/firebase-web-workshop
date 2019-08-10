@@ -43,10 +43,15 @@ function saveMessagingDeviceToken() {}
 /* UI */
 
 function authStateObserver(user) {
+    console.log('auth state')
     if (user) {
-        $('#sign-out').removeAttr('hidden');
+        $('#sign-in').hide();
+        $('#my-event').show();
+        $('#sign-out').show();
     } else {
-        $('#sign-in').removeAttr('hidden');
+        $('#sign-in').show();
+        $('#my-event').hide();
+        $('#sign-out').hide();
     }
 }
 
@@ -111,22 +116,34 @@ function createEventCard(id) {
     return div;
 }
 
-function loadIncludes() {
+function loadIncludes(callback) {
+    var deferreds = [];
+    // Create a deferred for all includes
     $("[data-load]").each(function() {
-        $(this).load($(this).data("load"));
+        const d = new $.Deferred();
+        deferreds.push(d);
+        $(this).load($(this).data("load"), function() {
+            d.resolve();
+        });
     });
+    // Callback when all deferreds are done
+    $.when.apply(null, deferreds).done(callback);
 }
 
 /* Main */
+
 $(document).ready(function() {
-    loadIncludes();
+    loadIncludes(function() {
+        // Add actions to elements
+        $('#sign-in').click(signIn);
+        $('#sign-out').click(signOut);
+
+        authStateObserver();
+    })
 });
 
 // TODO: checkSetup();
 
-// Add actions to elements
-$('#sign-in').click(signIn);
-$('#sign-out').click(signOut);
-
 // TODO: Initialize Firebase
 loadAllEvents();
+
