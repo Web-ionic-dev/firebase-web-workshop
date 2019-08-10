@@ -73,10 +73,18 @@ function displayEvent(id, name, timestamp, description, imageUrl) {
 
     // append event to the event list
     eventListElement.append(div)
-    
+}
+
+function loadIncludes() {
+    $("[data-load]").each(function() {
+        $(this).load($(this).data("load"));
+    });
 }
 
 /* Main */
+$(document).ready(function() {
+    loadIncludes();
+});
 
 // TODO: checkSetup();
 
