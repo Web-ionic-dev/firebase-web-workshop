@@ -58,19 +58,22 @@ var EVENT_TEMPLATE =
 
 function displayEvent(id, name, timestamp, description, imageUrl) {
     
-    // create div
+    // create event div element
     const container = document.createElement('div');
     container.innerHTML = EVENT_TEMPLATE;
 
+    // add event id to div element
     const div = container.firstChild;
     div.setAttribute('id', id);
 
+    // set up data
     div.querySelector('#image').src = imageUrl;
     div.querySelector('#name').textContent = name;
     div.querySelector('#description').textContent = description;
 
+    // append event to the event list
     eventListElement.append(div)
-
+    
 }
 
 /* Main */
