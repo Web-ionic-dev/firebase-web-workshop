@@ -117,6 +117,25 @@ function initializeAuthUI() {
 
 }
 
+function swapToSignInMode() {
+    $('#signin-form').show();
+    $('#signup-form').hide();
+    $('.modal-title').text('Sign In');
+    $('#error-message').hide();
+}
+
+function swapToSignUpMode() {
+    $('#signin-form').hide();
+    $('#signup-form').show();
+    $('.modal-title').text('Sign Up');
+}
+
+function displayAuthError(err) {
+    var errorMessageDiv = $('#error-message');
+    errorMessageDiv.text(err);
+    errorMessageDiv.show();
+  }
+
 function authStateObserver(user) {
     console.log('authStateObserver user: ' + user);
     if (user) {
@@ -129,18 +148,6 @@ function authStateObserver(user) {
         $('#sign-out').hide();
     }
     $('#modalCenter').modal('hide');
-}
-
-function swapToSignInMode() {
-    $('#signin-form').show();
-    $('#signup-form').hide();
-    $('.modal-title').text('Sign In');
-}
-
-function swapToSignUpMode() {
-    $('#signin-form').hide();
-    $('#signup-form').show();
-    $('.modal-title').text('Sign Up');
 }
 
 // Events
