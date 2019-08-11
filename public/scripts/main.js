@@ -11,17 +11,53 @@ function checkSetup() {
 
 /* Authentication */
 
-function initFirebaseAuth() {}
+function initFirebaseAuth() {
+    firebase.auth().onAuthStateChanged(authStateObserver);
+}
 
-function signIn() {}
+function signUp(email, password, name) {
+    console.log('sign up with: ' + email + ' ' + password + ' ' + name);
+    firebase.auth().createUserWithEmailAndPassword(email, password).then(function(user) {
+        return user.updateProfile({
+            displayName: name
+        })
+    }).catch(function(error) {
+        var errorMessage = error.message;
+        displayAuthError(errorMessage);
+    });
+}
 
-function signOut() {}
+function signIn(email, password) {
+    console.log('sign in with: ' + email + ' ' + password);
+    firebase.auth().signInWithEmailAndPassword(email, password).then(function(user) {
+        console.log(user);
+    }).catch(function(error) {
+        var errorMessage = error.message;
+        displayAuthError(errorMessage);
+    });
+    
+}
 
-function isUserSignIn() {}
+function signInWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider);
+}
 
-function getUserName() {}
+function signOut() {
+    firebase.auth().signOut();
+}
 
-function getProfilePicUrl() {}
+function isUserSignIn() {
+    return firebase.auth().currentUser;
+}
+
+function getUserName() {
+    return firebase.auth().currentUser.displayName;
+}
+
+function getProfilePicUrl() {
+    return firebase.auth().currentUser.photoURL || '/images/profile_placeholder.png';
+}
 
 /* Firestore */
 
@@ -42,8 +78,67 @@ function saveMessagingDeviceToken() {}
 
 /* UI */
 
+// Sign In / Sign Up
+
+function initializeAuthUI() {
+
+    // Add actions to elements
+    $('#sign-out').click(signOut);
+
+    $('#swapToSignUp').click(function(){
+        swapToSignUpMode();
+    });
+
+    $('#swapToSignIn').click(function(){
+        swapToSignInMode();
+    });
+
+    $('#signin-form').submit(function(){
+        console.log('sign in submmitted')
+        const email = $('#signInInputEmail').val();
+        const password = $('#signInInputPassword').val();
+        signIn(email, password);
+        event.preventDefault();
+
+    });
+
+    $('#signup-form').submit(function(){
+        console.log('sign up submmitted')
+        const email = $('#signUpInputEmail').val();
+        const password = $('#signUpInputPassword').val();
+        const name = $('#signUpInputName').val();
+        signUp(email, password, name);
+        event.preventDefault();
+    });
+
+    $('#signInWithGoogle').click(function(){
+        signInWithGoogle();
+    });
+
+}
+
+function swapToSignInMode() {
+    $('#signin-form').show();
+    $('#signup-form').hide();
+    $('.modal-title').text('Sign In');
+    $('#error-message').hide();
+}
+
+function swapToSignUpMode() {
+    $('#signin-form').hide();
+    $('#signup-form').show();
+    $('.modal-title').text('Sign Up');
+    $('#error-message').hide();
+}
+
+function displayAuthError(err) {
+    var errorMessageDiv = $('#error-message');
+    errorMessageDiv.text(err);
+    errorMessageDiv.show();
+  }
+
 function authStateObserver(user) {
-    console.log('auth state')
+    console.log('authStateObserver user: ' + user);
     if (user) {
         $('#sign-in').hide();
         $('#my-event').show();
@@ -53,7 +148,10 @@ function authStateObserver(user) {
         $('#my-event').hide();
         $('#sign-out').hide();
     }
+    $('#modalCenter').modal('hide');
 }
+
+// Events
 
 // Template for events.
 const EVENT_TEMPLATE =
@@ -134,11 +232,9 @@ function loadIncludes(callback) {
 
 $(document).ready(function() {
     loadIncludes(function() {
-        // Add actions to elements
-        $('#sign-in').click(signIn);
-        $('#sign-out').click(signOut);
-
-        authStateObserver();
+        // initialize Firebase
+        initializeAuthUI();
+        initFirebaseAuth();
     })
 });
 
