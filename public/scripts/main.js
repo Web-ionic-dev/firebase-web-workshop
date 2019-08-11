@@ -18,22 +18,16 @@ function initFirebaseAuth() {
 function signUp(email, password, name) {
     console.log('sign up with: ' + email + ' ' + password + ' ' + name);
     firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
-        // Handle Errors here.
-        var errorCode = error.code;
         var errorMessage = error.message;
-        // ...
-        console.log(errorMessage);
+        displayAuthError(errorMessage);
     });
 }
 
 function signIn(email, password) {
     console.log('sign in with: ' + email + ' ' + password);
     firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
-        // Handle Errors here.
-        var errorCode = error.code;
         var errorMessage = error.message;
-        // ...
-        console.log(errorMessage);
+        displayAuthError(errorMessage);
     });
     
 }
