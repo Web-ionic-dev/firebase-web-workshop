@@ -15,9 +15,28 @@ function initFirebaseAuth() {
     firebase.auth().onAuthStateChanged(authStateObserver);
 }
 
-function signup(email, password, name) {}
+function signUp(email, password, name) {
+    console.log('sign up with: ' + email + ' ' + password + ' ' + name);
+    firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // ...
+        console.log(errorMessage);
+    });
+}
 
-function signIn(email, password) {}
+function signIn(email, password) {
+    console.log('sign in with: ' + email + ' ' + password);
+    firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // ...
+        console.log(errorMessage);
+    });
+    
+}
 
 function signInWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
@@ -75,17 +94,25 @@ function initializeAuthUI() {
     });
 
     $('#signin-form').submit(function(){
-        alert("Handler for .submit() signin called.");
+        console.log('sign in submmitted')
+        const email = $('#signInInputEmail').val();
+        const password = $('#signInInputPassword').val();
+        signIn(email, password);
         event.preventDefault();
+
     });
 
     $('#signup-form').submit(function(){
-        alert("Handler for .submit() signup called.");
+        console.log('sign up submmitted')
+        const email = $('#signUpInputEmail').val();
+        const password = $('#signUpInputPassword').val();
+        const name = $('#signUpInputName').val();
+        signUp(email, password, name);
         event.preventDefault();
     });
 
     $('#signInWithGoogle').click(function(){
-        signInWithGoogle()
+        signInWithGoogle();
     });
 
 }
