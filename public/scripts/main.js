@@ -17,7 +17,11 @@ function initFirebaseAuth() {
 
 function signUp(email, password, name) {
     console.log('sign up with: ' + email + ' ' + password + ' ' + name);
-    firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
+    firebase.auth().createUserWithEmailAndPassword(email, password).then(function(user) {
+        return user.updateProfile({
+            displayName: name
+        })
+    }).catch(function(error) {
         var errorMessage = error.message;
         displayAuthError(errorMessage);
     });
@@ -25,7 +29,9 @@ function signUp(email, password, name) {
 
 function signIn(email, password) {
     console.log('sign in with: ' + email + ' ' + password);
-    firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+    firebase.auth().signInWithEmailAndPassword(email, password).then(function(user) {
+        console.log(user);
+    }).catch(function(error) {
         var errorMessage = error.message;
         displayAuthError(errorMessage);
     });
