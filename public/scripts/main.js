@@ -128,6 +128,7 @@ function swapToSignUpMode() {
     $('#signin-form').hide();
     $('#signup-form').show();
     $('.modal-title').text('Sign Up');
+    $('#error-message').hide();
 }
 
 function displayAuthError(err) {
