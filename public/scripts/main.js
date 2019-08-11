@@ -86,11 +86,11 @@ function initializeAuthUI() {
     $('#sign-out').click(signOut);
 
     $('#swapToSignUp').click(function(){
-        swapToSignUpMode()
+        swapToSignUpMode();
     });
 
     $('#swapToSignIn').click(function(){
-        swapToSignInMode()
+        swapToSignInMode();
     });
 
     $('#signin-form').submit(function(){
@@ -118,6 +118,7 @@ function initializeAuthUI() {
 }
 
 function authStateObserver(user) {
+    console.log('authStateObserver user: ' + user);
     if (user) {
         $('#sign-in').hide();
         $('#my-event').show();
@@ -127,6 +128,7 @@ function authStateObserver(user) {
         $('#my-event').hide();
         $('#sign-out').hide();
     }
+    $('#modalCenter').modal('hide');
 }
 
 function swapToSignInMode() {
