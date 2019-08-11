@@ -148,7 +148,7 @@ function authStateObserver(user) {
         $('#my-event').hide();
         $('#sign-out').hide();
     }
-    $('#modalCenter').modal('hide');
+    $('#authModal').modal('hide');
 }
 
 // Events
