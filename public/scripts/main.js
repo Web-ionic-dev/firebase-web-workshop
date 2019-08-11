@@ -15,7 +15,11 @@ function initFirebaseAuth() {
     firebase.auth().onAuthStateChanged(authStateObserver);
 }
 
-function signIn() {
+function signup(email, password, name) {}
+
+function signIn(email, password) {}
+
+function signInWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     firebase.auth().signInWithPopup(provider);
 }
@@ -55,6 +59,37 @@ function saveMessagingDeviceToken() {}
 
 /* UI */
 
+// Sign In / Sign Up
+
+function initializeAuthUI() {
+
+    // Add actions to elements
+    $('#sign-out').click(signOut);
+
+    $('#swapToSignUp').click(function(){
+        swapToSignUpMode()
+    });
+
+    $('#swapToSignIn').click(function(){
+        swapToSignInMode()
+    });
+
+    $('#signin-form').submit(function(){
+        alert("Handler for .submit() signin called.");
+        event.preventDefault();
+    });
+
+    $('#signup-form').submit(function(){
+        alert("Handler for .submit() signup called.");
+        event.preventDefault();
+    });
+
+    $('#signInWithGoogle').click(function(){
+        signInWithGoogle()
+    });
+
+}
+
 function authStateObserver(user) {
     if (user) {
         $('#sign-in').hide();
@@ -66,6 +101,20 @@ function authStateObserver(user) {
         $('#sign-out').hide();
     }
 }
+
+function swapToSignInMode() {
+    $('#signin-form').show();
+    $('#signup-form').hide();
+    $('.modal-title').text('Sign In');
+}
+
+function swapToSignUpMode() {
+    $('#signin-form').hide();
+    $('#signup-form').show();
+    $('.modal-title').text('Sign Up');
+}
+
+// Events
 
 // Template for events.
 const EVENT_TEMPLATE =
@@ -146,11 +195,8 @@ function loadIncludes(callback) {
 
 $(document).ready(function() {
     loadIncludes(function() {
-        // Add actions to elements
-        $('#sign-in').click(signIn);
-        $('#sign-out').click(signOut);
-
         // initialize Firebase
+        initializeAuthUI();
         initFirebaseAuth();
     })
 });
