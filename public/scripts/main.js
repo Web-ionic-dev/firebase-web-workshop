@@ -68,6 +68,10 @@ function loadAllEvents() {
     displayEventCard('4', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
 }
 
+function queryEvent(type, time) {
+    console.log('query for type: ' + type + ' time: ' + time)
+}
+
 function loadMyEvents() {}
 
 /* Cloud Messaging */
@@ -205,6 +209,7 @@ function createEventCard(id) {
     const registerButton = div.find('.register-button');
     registerButton.attr('data-id', id);
     registerButton.click(function() {
+        // TODO: check login
         const eventId = $(this).data().id;
         console.log("Register/Unregister for:" + eventId);
     });
@@ -212,6 +217,26 @@ function createEventCard(id) {
     // append event to the event list
     $('#events').append(div);
     return div;
+}
+
+// Dropdown
+
+function addActionsForDropdownMenu() {
+
+    // add actions for dropdowm
+    $('#typeDropdownMenu').change(function() {
+        handleForDropdownChanged();
+    });
+
+    $('#timeDropdownMenu').change(function() {
+        handleForDropdownChanged();
+    });
+}
+
+function handleForDropdownChanged() {
+    const type = $('#typeDropdownMenu').val()
+    const time = $('#timeDropdownMenu').val()
+    queryEvent(type, time)
 }
 
 function loadIncludes(callback) {
@@ -238,8 +263,9 @@ $(document).ready(function() {
     })
 });
 
+addActionsForDropdownMenu();
+
 // TODO: checkSetup();
 
-// TODO: Initialize Firebase
 loadAllEvents();
 

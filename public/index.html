@@ -19,28 +19,17 @@
             <h1>Events</h1>
 
             <!-- Dropdown -->
-            <div class="filter-dropdown-list my-3">
-                <div class="btn-group">
-                    <button class="btn btn-light dropdown-toggle" type="button" id="typeDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        All type
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="typeDropdownMenuButton">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-light dropdown-toggle" type="button" id="timeDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        All time
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="timeDropdownMenuButton">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </div>
-            </div>
+            <select class="custom-select-sm mt-3" id="typeDropdownMenu">
+                <option value="all">All type</option>
+                <option value="workshop">Workshop</option>
+                <option value="meetup">Meetup</option>
+            </select>
+        
+            <select class="custom-select-sm mt-3" id="timeDropdownMenu">
+                <option value="all">All time</option>
+                <option value="week">This week</option>
+                <option value="month">This month</option>
+            </select>
 
             <!-- Event list -->
             <div id="events" class="row"></div>
