@@ -119,6 +119,25 @@ function initializeAuthUI() {
         signInWithGoogle();
     });
 
+    $('#signInInputEmail').change(function() {
+        $('#error-message').hide();
+    });
+
+    $('#signInInputPassword').change(function() {
+        $('#error-message').hide();
+    });
+
+    $('#signUpInputEmail').change(function() {
+        $('#error-message').hide();
+    });
+
+    $('#signUpInputPassword').change(function() {
+        $('#error-message').hide();
+    });
+
+    $('#signUpInputName').change(function() {
+        $('#error-message').hide();
+    });
 }
 
 function swapToSignInMode() {
@@ -139,7 +158,7 @@ function displayAuthError(err) {
     var errorMessageDiv = $('#error-message');
     errorMessageDiv.text(err);
     errorMessageDiv.show();
-  }
+}
 
 function authStateObserver(user) {
     console.log('authStateObserver user: ' + user);
