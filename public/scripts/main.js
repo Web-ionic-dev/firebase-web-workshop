@@ -62,6 +62,8 @@ function getProfilePicUrl() {
 /* Firestore */
 
 function loadAllEvents() {
+    // TODO: load once
+    // TODO: add snapshot, if data changed, then auto update the event card
     displayEventCard('1', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
     displayEventCard('2', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', false);
     displayEventCard('3', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
@@ -72,7 +74,12 @@ function queryEvent(type, time) {
     console.log('query for type: ' + type + ' time: ' + time);
 }
 
-function loadMyEvents() {}
+function loadMyEvents() {
+    console.log('loadMyEvents')
+    displayMyEventItem('1', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
+    displayMyEventItem('2', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
+    displayMyEventItem('3', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
+}
 
 /* Cloud Messaging */
 
@@ -229,6 +236,42 @@ function createEventCard(id) {
     return div;
 }
 
+// Template for my events.
+const MY_EVENT_TEMPLATE =
+'<div class="media mb-3">'+
+    '<img src="" class="image mr-3">'+
+    '<div class="media-body">'+
+        '<h5 class="name card-title"></h5>'+
+        '<h6 class="date mb-2 text-muted"></h6>'+
+        '<p class="description"></p>'+
+    '</div>'+
+'</div>';
+
+function displayMyEventItem(id, name, timestamp, description, imageUrl) {
+    // use existing or create an event card element
+    var div = $('div[data-item-id='+id+']');
+    if (div.length === 0) {
+        div = createMyEventItem(id);
+    } 
+
+    // set up data
+    div.find('.image').attr('src', imageUrl);
+    div.find('.name').text(name);
+    div.find('.date').text(timestamp);
+    div.find('.description').text(description);
+}
+
+function createMyEventItem(id) {
+
+    // add event id to div element
+    const div = $(MY_EVENT_TEMPLATE);
+    div.attr('data-item-id', id);
+
+    // append event to the event list
+    $('#my-events').append(div);
+    return div;
+}
+
 // Dropdown
 
 function addActionsForDropdownMenu() {
@@ -279,3 +322,4 @@ addActionsForDropdownMenu();
 
 loadAllEvents();
 
+loadMyEvents();
