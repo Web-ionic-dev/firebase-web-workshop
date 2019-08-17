@@ -116,27 +116,12 @@ function initializeAuthUI() {
     });
 
     $('#signInWithGoogle').click(function(){
+        hideAuthError();
         signInWithGoogle();
     });
 
-    $('#signInInputEmail').change(function() {
-        $('#error-message').hide();
-    });
-
-    $('#signInInputPassword').change(function() {
-        $('#error-message').hide();
-    });
-
-    $('#signUpInputEmail').change(function() {
-        $('#error-message').hide();
-    });
-
-    $('#signUpInputPassword').change(function() {
-        $('#error-message').hide();
-    });
-
-    $('#signUpInputName').change(function() {
-        $('#error-message').hide();
+    $('#signInInputEmail, #signInInputPassword, #signUpInputEmail, #signUpInputPassword, #signUpInputName').change(function() {
+        hideAuthError();
     });
 }
 
@@ -158,6 +143,12 @@ function displayAuthError(err) {
     var errorMessageDiv = $('#error-message');
     errorMessageDiv.text(err);
     errorMessageDiv.show();
+}
+
+function hideAuthError() {
+    if ($('#error-message').is(':visible')) {
+        $('#error-message').hide();
+    }
 }
 
 function authStateObserver(user) {
