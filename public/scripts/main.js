@@ -69,7 +69,7 @@ function loadAllEvents() {
 }
 
 function queryEvent(type, time) {
-    console.log('query for type: ' + type + ' time: ' + time)
+    console.log('query for type: ' + type + ' time: ' + time);
 }
 
 function loadMyEvents() {}
@@ -98,7 +98,7 @@ function initializeAuthUI() {
     });
 
     $('#signin-form').submit(function(){
-        console.log('sign in submmitted')
+        console.log('sign in submmitted');
         const email = $('#signInInputEmail').val();
         const password = $('#signInInputPassword').val();
         signIn(email, password);
@@ -107,7 +107,7 @@ function initializeAuthUI() {
     });
 
     $('#signup-form').submit(function(){
-        console.log('sign up submmitted')
+        console.log('sign up submmitted');
         const email = $('#signUpInputEmail').val();
         const password = $('#signUpInputPassword').val();
         const name = $('#signUpInputName').val();
@@ -253,9 +253,9 @@ function addActionsForDropdownMenu() {
 }
 
 function handleForDropdownChanged() {
-    const type = $('#typeDropdownMenu').val()
-    const time = $('#timeDropdownMenu').val()
-    queryEvent(type, time)
+    const type = $('#typeDropdownMenu').val();
+    const time = $('#timeDropdownMenu').val();
+    queryEvent(type, time);
 }
 
 function loadIncludes(callback) {
