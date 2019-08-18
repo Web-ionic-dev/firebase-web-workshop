@@ -1,0 +1,9 @@
++Event
+    >EventKey
+        EventTitle (string)
+        EventDescription (string)
+        EventDate (timestamp)
+        EventCreateTimestamp (timestamp)
+        EventType (string)
+        EventCoverImageUrl (string)
+        EventAttendeeList (array <string>)
