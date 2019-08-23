@@ -57,7 +57,7 @@ function getProfilePicUrl() {
 
 /* Firestore */
 
-function loadAllEvents(TypeFilter = 'All', TimeFilter = 'All') {
+function loadAllEvents(TypeFilter = 'All') {
     // TODO: load once
     // TODO: add snapshot, if data changed, then auto update the event card
 
@@ -66,17 +66,30 @@ function loadAllEvents(TypeFilter = 'All', TimeFilter = 'All') {
     if(TypeFilter !== 'All') {
         AllEventList = firebase.firestore().collection('Event').where('EventType','==', TypeFilter).orderBy('EventCreateTimestamp','desc')
     }
-    
-    AllEventList.onSnapshot(EventList => EventList.map( EventDoc => { 
-        
-        const EventId = EventDoc.id
-        const EventDocData = EventDoc.data()
 
-        const [ EventTitle, EventDescription, EventDate, EventCreateTimestamp, EventType, EventCoverImageUrl, EventAttendeeList ] = EventDocData
+    firebase.auth().onAuthStateChanged(User => {
+        var UserKey = User.uid
 
-        displayEventCard(EventId,EventTitle,EventDate,EventDescription,EventCoverImageUrl,true)
-     }))
+        var MyEventList = firebase.firestore().collection('Event').where('EventAttendeeList','array-contains', UserKey).orderBy('EventCreateTimestamp','desc')
 
+        AllEventList.onSnapshot(EventListFromAllEvent => {
+            MyEventList.onSnapshot(EventListFromAllEventMyEvent => {
+
+                var MyEventKeyList = EventListFromAllEventMyEvent.docs.map( Doc => Doc.id) 
+
+                var AllEventList = EventListFromAllEvent.docs.map( Doc => (
+                        { EventId: Doc.id, ...Doc.data() , isRegister: MyEventKeyList.includes(Doc.id)})
+                    )
+
+                    AllEventList.map( EventDocData => { 
+
+                        const { EventTitle, EventDescription, EventDate, EventCreateTimestamp, EventType, EventCoverImageUrl, EventAttendeeList, isRegister, EventId  } = EventDocData
+            
+                        displayEventCard(EventId,EventTitle,EventDate,EventDescription,EventCoverImageUrl,isRegister)
+                    });
+            })
+        })
+    })
 
     // displayEventCard('1', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
     // displayEventCard('2', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', false);
@@ -89,8 +102,7 @@ function queryEvent(type, time) {
 }
 
 function loadMyEvents() {
-    console.log('loadMyEvents')
-
+    
     firebase.auth().onAuthStateChanged(User => {
         var UserKey = User.uid
 
@@ -359,21 +371,18 @@ $(document).ready(function() {
         // initialize Firebase
         initializeAuthUI();
         initFirebaseAuth();
+        writeNewEvent('Test Title2','Test Des2', new Date(), 'all2', 'https://images.unsplash.com/photo-1566095082419-77dc02ebfe3d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=3451&q=80','User2').then( res => console.log(res))
     })
 });
 
 addActionsForDropdownMenu();
 
-isUserSignIn()
+// isUserSignIn()
 
 // getUID()
 
-// writeNewEvent('Test Title','Test Des', new Date(), 'all', 'https://images.unsplash.com/photo-1566095082419-77dc02ebfe3d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=3451&q=80','EAAPMOf6Yehguz8UqRMQZMYrubj2').then( res => console.log(res))
-
-
-
 // TODO: checkSetup();
 
-// loadAllEvents();
+loadAllEvents();
 
 loadMyEvents();
