@@ -47,22 +47,12 @@ function signOut() {
     firebase.auth().signOut();
 }
 
-function isUserSignIn() {
-    console.log(JSON.stringify(firebase.auth().currentUser))
-    return firebase.auth().currentUser;
-}
-
 function getUserName() {
     return firebase.auth().currentUser.displayName;
 }
 
 function getProfilePicUrl() {
     return firebase.auth().currentUser.photoURL || '/images/profile_placeholder.png';
-}
-
-function getUID() {
-    console.log(firebase.auth().currentUser.uid)
-    return firebase.auth().currentUser.uid
 }
 
 /* Firestore */
@@ -101,24 +91,21 @@ function queryEvent(type, time) {
 function loadMyEvents() {
     console.log('loadMyEvents')
 
-    // var UserKey = getUID();
+    firebase.auth().onAuthStateChanged(User => {
+        var UserKey = User.uid
 
-    var MyEventList = firebase.firestore().collection('Event').where('EventAttendeeList','array-contains', 'EAAPMOf6Yehguz8UqRMQZMYrubj2').orderBy('EventCreateTimestamp','desc')
+        var MyEventList = firebase.firestore().collection('Event').where('EventAttendeeList','array-contains', UserKey).orderBy('EventCreateTimestamp','desc')
 
-    // MyEventList.onSnapshot(EventList => console.log(EventList.docs.))
-    // MyEventList.onSnapshot(EventList => EventList.docs.map( EventDoc => console.log(EventDoc.data())))
-    MyEventList.onSnapshot(EventList => EventList.docs.map( EventDoc => { 
-        
-        const EventId = EventDoc.id
-        const EventDocData = EventDoc.data()
+        MyEventList.onSnapshot(EventList => EventList.docs.map( EventDoc => { 
+            
+            const EventId = EventDoc.id
+            const EventDocData = EventDoc.data()
 
-        console.log(EventId)
-        console.log(EventDocData)
+            const { EventTitle, EventDescription, EventDate, EventCreateTimestamp, EventType, EventCoverImageUrl, EventAttendeeList } = EventDocData;
 
-        const { EventTitle, EventDescription, EventDate, EventCreateTimestamp, EventType, EventCoverImageUrl, EventAttendeeList } = EventDocData;
-
-        displayMyEventItem(EventId,EventTitle,EventDate,EventDescription,EventCoverImageUrl);
-     }))
+            displayMyEventItem(EventId,EventTitle,EventDate,EventDescription,EventCoverImageUrl);
+        }))
+    })
 
     displayMyEventItem('1', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
     displayMyEventItem('2', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
