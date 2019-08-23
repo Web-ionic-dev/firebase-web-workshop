@@ -48,6 +48,7 @@ function signOut() {
 }
 
 function isUserSignIn() {
+    console.log(JSON.stringify(firebase.auth().currentUser))
     return firebase.auth().currentUser;
 }
 
@@ -59,15 +60,38 @@ function getProfilePicUrl() {
     return firebase.auth().currentUser.photoURL || '/images/profile_placeholder.png';
 }
 
+function getUID() {
+    console.log(firebase.auth().currentUser.uid)
+    return firebase.auth().currentUser.uid
+}
+
 /* Firestore */
 
-function loadAllEvents() {
+function loadAllEvents(TypeFilter = 'All', TimeFilter = 'All') {
     // TODO: load once
     // TODO: add snapshot, if data changed, then auto update the event card
-    displayEventCard('1', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
-    displayEventCard('2', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', false);
-    displayEventCard('3', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
-    displayEventCard('4', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
+
+    var AllEventList = firebase.firestore().collection('Event').orderBy('EventCreateTimestamp','desc')
+    
+    if(TypeFilter !== 'All') {
+        AllEventList = firebase.firestore().collection('Event').where('EventType','==', TypeFilter).orderBy('EventCreateTimestamp','desc')
+    }
+    
+    AllEventList.onSnapshot(EventList => EventList.map( EventDoc => { 
+        
+        const EventId = EventDoc.id
+        const EventDocData = EventDoc.data()
+
+        const [ EventTitle, EventDescription, EventDate, EventCreateTimestamp, EventType, EventCoverImageUrl, EventAttendeeList ] = EventDocData
+
+        displayEventCard(EventId,EventTitle,EventDate,EventDescription,EventCoverImageUrl,true)
+     }))
+
+
+    // displayEventCard('1', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
+    // displayEventCard('2', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', false);
+    // displayEventCard('3', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
+    // displayEventCard('4', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
 }
 
 function queryEvent(type, time) {
@@ -76,6 +100,26 @@ function queryEvent(type, time) {
 
 function loadMyEvents() {
     console.log('loadMyEvents')
+
+    // var UserKey = getUID();
+
+    var MyEventList = firebase.firestore().collection('Event').where('EventAttendeeList','array-contains', 'EAAPMOf6Yehguz8UqRMQZMYrubj2').orderBy('EventCreateTimestamp','desc')
+
+    // MyEventList.onSnapshot(EventList => console.log(EventList.docs.))
+    // MyEventList.onSnapshot(EventList => EventList.docs.map( EventDoc => console.log(EventDoc.data())))
+    MyEventList.onSnapshot(EventList => EventList.docs.map( EventDoc => { 
+        
+        const EventId = EventDoc.id
+        const EventDocData = EventDoc.data()
+
+        console.log(EventId)
+        console.log(EventDocData)
+
+        const { EventTitle, EventDescription, EventDate, EventCreateTimestamp, EventType, EventCoverImageUrl, EventAttendeeList } = EventDocData;
+
+        displayMyEventItem(EventId,EventTitle,EventDate,EventDescription,EventCoverImageUrl);
+     }))
+
     displayMyEventItem('1', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
     displayMyEventItem('2', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
     displayMyEventItem('3', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
@@ -159,7 +203,8 @@ function hideAuthError() {
 }
 
 function authStateObserver(user) {
-    console.log('authStateObserver user: ' + user);
+    // console.log('authStateObserver user: ' + user);
+    // console.log(JSON.stringify(user))
     if (user) {
         $('#sign-in').hide();
         $('#my-event').show();
@@ -289,7 +334,8 @@ function addActionsForDropdownMenu() {
 function handleForDropdownChanged() {
     const type = $('#typeDropdownMenu').val();
     const time = $('#timeDropdownMenu').val();
-    queryEvent(type, time);
+    loadAllEvents(type);
+    // queryEvent(type, time);
 }
 
 function loadIncludes(callback) {
@@ -306,6 +352,19 @@ function loadIncludes(callback) {
     $.when.apply(null, deferreds).done(callback);
 }
 
+function writeNewEvent(EventTitle, EventDescription, EventDate, EventType, EventCoverImageUrl, UserKey) {
+    return firebase.firestore().collection('Event').add(
+        {   
+            EventTitle: EventTitle,
+            EventDescription: EventDescription,
+            EventDate: EventDate,
+            EventType: EventType,
+            EventCoverImageUrl: EventCoverImageUrl,
+            EventCreateTimestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            EventAttendeeList: firebase.firestore.FieldValue.arrayUnion(UserKey)
+        })
+}
+
 /* Main */
 
 $(document).ready(function() {
@@ -318,8 +377,16 @@ $(document).ready(function() {
 
 addActionsForDropdownMenu();
 
+isUserSignIn()
+
+// getUID()
+
+// writeNewEvent('Test Title','Test Des', new Date(), 'all', 'https://images.unsplash.com/photo-1566095082419-77dc02ebfe3d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=3451&q=80','EAAPMOf6Yehguz8UqRMQZMYrubj2').then( res => console.log(res))
+
+
+
 // TODO: checkSetup();
 
-loadAllEvents();
+// loadAllEvents();
 
 loadMyEvents();
