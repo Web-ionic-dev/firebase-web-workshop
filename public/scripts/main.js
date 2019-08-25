@@ -242,7 +242,7 @@ function displayEventCard(id, name, timestamp, description, imageUrl, isRegister
     // set up data
     div.find('.image').attr('src', imageUrl);
     div.find('.name').text(name);
-    div.find('.date').text(Date().toString());
+    div.find('.date').text(timestamp);
     div.find('.description').text(description);
 }
 
