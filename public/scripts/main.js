@@ -258,14 +258,17 @@ function createEventCard(id) {
     cardTitleLabel.click(function() {
         const eventId = $(this).data().id;
         console.log("See detail for:" + eventId);
+
+        // FIXME: Firestore query (on snapshot) 1 specific event, then display event detail
+
         const attendees = [{
             'profilePicUrl': 'images/temp.png'
         },
         {
             'profilePicUrl': 'images/temp.png'
         }]
-        displayEventDetail(id, 'xxx', 'yyy', 'zzz', 'images/temp.png', attendees, true)
-        // TODO: Firestore query (on snapshot) 1 specific event, then display event detail
+        displayEventDetail(id, 'xxx', 'yyy', 'zzz', 'images/temp.png', attendees, false)
+        
     });
 
     // append event to the event list
@@ -284,16 +287,40 @@ function createEventCard(id) {
 
 function displayEventDetail(id, name, timestamp, description, imageUrl, attendees, isRegistered) {
 
-    $('.modal-title.name').text(name);
-    $('.modal-body .image').attr('src', imageUrl);
-    $('.modal-body .date').text(timestamp);
-    $('.modal-body .description').text(description);
+    $('#eventDetailModal .name').text(name);
+    $('#eventDetailModal .image').attr('src', imageUrl);
+    $('#eventDetailModal .date').text(timestamp);
+    $('#eventDetailModal .description').text(description);
+
+    displayAttendees(attendees)
+
+    // register button
+    $('#eventDetailModal .register-button').attr('data-id', id);
+
+    if (isRegistered) {
+        // hide register button (if already registered)
+        $('#eventDetailModal .modal-footer').hide();
+    } else {
+        // add action for register button
+        $('#eventDetailModal .register-button').click(function() {
+            const eventId = $(this).data().id;
+            console.log('register for: ' + eventId);
+            // TODO: Check if logged in
+            // TODO: Firestore call - to write attendee data
+            // TODO: refresh view to show attendee updates
+        })
+    }
+}
+
+const ATTENDEE_TEMPLATE = '<img src="" class="img-thumbnail rounded float-left">'
+
+function displayAttendees(attendees) {
 
     // attendees
-    $('.modal-body .attendee-title').text('Attendees (' + attendees.length + ')');
+    $('#eventDetailModal .attendee-title').text('Attendees (' + attendees.length + ')');
 
     // remove all attendee from the list (if any)
-    $('.modal-body .attendee-list').children().each(function(i) {
+    $('#eventDetailModal .attendee-list').children().each(function(i) {
         while(this.attributes.length > 0)
             this.removeAttribute(this.attributes[0].name);
     })
@@ -304,25 +331,7 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
             displayAttendeeProfilePic(attendee.profilePicUrl)
         });
     }
-
-    // register button
-    $('.register-button').attr('data-id', id);
-
-    if (isRegistered) {
-        // hide register button (if already registered)
-        $('.modal-footer').hide();
-    } else {
-        // add action for register button
-        $('.register-button').click(function() {
-            const eventId = $(this).data().id;
-            console.log('register for: ' + eventId);
-            // TODO: Check if logged in
-            // TODO: Firestore call - to write attendee data
-        })
-    }
 }
-
-const ATTENDEE_TEMPLATE = '<img src="" class="img-thumbnail rounded float-left">'
 
 function displayAttendeeProfilePic(imageUrl) {
 
