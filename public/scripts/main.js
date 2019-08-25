@@ -227,7 +227,6 @@ const EVENT_TEMPLATE =
             '<h5><a href="#" class="name card-title">d</a></h5>'+
             '<h6 class="date card-subtitle mb-2 text-muted">s</h6>'+
             '<p class="description card-text">s</p>'+
-            '<a href="#" class="register-button btn btn-primary btn-sm">Register</a>'+
         '</div>'+
     '</div>'+
 '</div>';
@@ -245,19 +244,6 @@ function displayEventCard(id, name, timestamp, description, imageUrl, isRegister
     div.find('.name').text(name);
     div.find('.date').text(Date().toString());
     div.find('.description').text(description);
-
-    const registerButton = div.find('.register-button');
-
-    // check if registered
-    if (isRegistered) {
-        registerButton.text("Registered!");
-        registerButton.removeClass('btn-primary');
-        registerButton.addClass('btn-outline-secondary');
-    } else {
-        registerButton.text("Register");
-        registerButton.removeClass('btn-outline-secondary');
-        registerButton.addClass('btn-primary');
-    }
 }
 
 function createEventCard(id) {
@@ -265,15 +251,6 @@ function createEventCard(id) {
     // add event id to div element
     const div = $(EVENT_TEMPLATE);
     div.attr('data-item-id', id);
-
-    // Add action to register button
-    const registerButton = div.find('.register-button');
-    registerButton.attr('data-id', id);
-    registerButton.click(function() {
-        // TODO: check login
-        const eventId = $(this).data().id;
-        console.log("Register/Unregister for:" + eventId);
-    });
 
     // Add action to card title
     const cardTitleLabel = div.find('.card-title');
