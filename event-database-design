@@ -1,9 +1,10 @@
-+Event
-    >EventKey
-        EventTitle (string)
-        EventDescription (string)
-        EventDate (timestamp)
-        EventCreateTimestamp (timestamp)
-        EventType (string)
-        EventCoverImageUrl (string)
-        EventAttendeeList (array <string>)
++events
+    >eventId
+        name (string)
+        description (string)
+        startTime (timestamp)
+        type (string)
+        imageUrl (string)
+        attendees (array <map>)
+            > userId
+            > profilePicUrl
