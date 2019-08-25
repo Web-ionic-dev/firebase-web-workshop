@@ -119,6 +119,12 @@ function getMyEvents() {
     });
 }
 
+function registerForEvent(eventId) {
+    const eventRef = firebase.firestore().collection('events').doc(eventId)
+    const user =  { profilePicUrl: getProfilePicUrl(), userId: getUserID() }
+    eventRef.update({ 'attendees': firebase.firestore.FieldValue.arrayUnion(user)})
+}
+
 /* Cloud Messaging */
 
 function requestNotificationsPermissions() {}
