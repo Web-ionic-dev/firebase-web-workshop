@@ -180,7 +180,7 @@ const EVENT_TEMPLATE =
     '<div class="card">'+
         '<img class="image card-img-top" src="">'+
         '<div class="card-body">'+
-            '<h5 class="name card-title">d</h5>'+
+            '<h5><a href="#" class="name card-title">d</a></h5>'+
             '<h6 class="date card-subtitle mb-2 text-muted">s</h6>'+
             '<p class="description card-text">s</p>'+
             '<a href="#" class="register-button btn btn-primary btn-sm">Register</a>'+
@@ -229,6 +229,14 @@ function createEventCard(id) {
         // TODO: check login
         const eventId = $(this).data().id;
         console.log("Register/Unregister for:" + eventId);
+    });
+
+    // Add action to card title
+    const cardTitleLabel = div.find('.card-title');
+    cardTitleLabel.attr('data-id', id);
+    cardTitleLabel.click(function() {
+        const eventId = $(this).data().id;
+        console.log("See detail for:" + eventId);
     });
 
     // append event to the event list
