@@ -61,44 +61,23 @@ function getProfilePicUrl() {
 
 /* Firestore */
 
-function loadAllEvents(TypeFilter = 'All') {
-    // TODO: load once
-    // TODO: add snapshot, if data changed, then auto update the event card
+function getEvents(filter = 'All') {
 
-    var AllEventList = firebase.firestore().collection('Event').orderBy('EventCreateTimestamp','desc')
-    
-    if(TypeFilter !== 'All') {
-        AllEventList = firebase.firestore().collection('Event').where('EventType','==', TypeFilter).orderBy('EventCreateTimestamp','desc')
+    var eventList = firebase.firestore().collection('events')
+
+    if(filter !== 'All') {
+        eventList = firebase.firestore().collection('events').where('type','==', filter)
     }
 
-    firebase.auth().onAuthStateChanged(User => {
-        var UserKey = User.uid
-
-        var MyEventList = firebase.firestore().collection('Event').where('EventAttendeeList','array-contains', UserKey).orderBy('EventCreateTimestamp','desc')
-
-        AllEventList.onSnapshot(EventListFromAllEvent => {
-            MyEventList.onSnapshot(EventListFromAllEventMyEvent => {
-
-                var MyEventKeyList = EventListFromAllEventMyEvent.docs.map( Doc => Doc.id) 
-
-                var AllEventList = EventListFromAllEvent.docs.map( Doc => (
-                        { EventId: Doc.id, ...Doc.data() , isRegister: MyEventKeyList.includes(Doc.id)})
-                    )
-
-                    AllEventList.map( EventDocData => { 
-
-                        const { EventTitle, EventDescription, EventDate, EventCreateTimestamp, EventType, EventCoverImageUrl, EventAttendeeList, isRegister, EventId  } = EventDocData
-            
-                        displayEventCard(EventId,EventTitle,EventDate,EventDescription,EventCoverImageUrl,isRegister)
-                    });
-            })
+    eventList.onSnapshot(function(snapshot) {
+        const events = snapshot.docs.map ( doc => (
+            {id: doc.id, ...doc.data()}
+        ))
+        console.log(events)
+        events.forEach(event => {
+            displayEventCard(event.id, event.name, event.startTime, event.description, event.imageUrl)
         })
-    })
-
-    // displayEventCard('1', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
-    // displayEventCard('2', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', false);
-    // displayEventCard('3', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
-    // displayEventCard('4', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
+    });
 }
 
 function queryEvents(type, time) {
@@ -244,7 +223,7 @@ const EVENT_TEMPLATE =
     '</div>'+
 '</div>';
 
-function displayEventCard(id, name, timestamp, description, imageUrl, isRegistered) {
+function displayEventCard(id, name, timestamp, description, imageUrl) {
 
     // use existing or create an event card element
     var div = $('div[data-item-id='+id+']');
@@ -271,8 +250,8 @@ function createEventCard(id, name, timestamp, description, imageUrl) {
     cardTitleLabel.click(function() {
         const eventId = $(this).data().id;
         console.log("See detail for:" + eventId);
-        subscribeEventAttendee('UF2LlXh9flz55vMyPYF0')
-        displayEventDetail(id, name, timestamp, description, imageUrl)
+        subscribeEventAttendee(eventId)
+        displayEventDetail(eventId, name, timestamp, description, imageUrl)
     });
 
     // append event to the event list
@@ -461,6 +440,6 @@ addActionsForDropdownMenu();
 
 // TODO: checkSetup();
 
-loadAllEvents();
+getEvents();
 
 loadMyEvents();
