@@ -90,9 +90,9 @@ function subscribeEvent(eventId) {
         const event = doc.data()
 
         // check if user is already registered for the event
-        const attendees = Object.values(event.attendees)
+        const attendees = event.attendees
         console.log(attendees)
-        const attendeesId = Object.keys(event.attendees)
+        const attendeesId = attendees.map (attendee => attendee.userId)
         const isRegistered = attendeesId.includes(getUserID())
         
         // then display data
