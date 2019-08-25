@@ -82,40 +82,41 @@ function getEvents(filter = 'all') {
     });
 }
 
-function queryEvents(type, time) {
-    console.log('query for type: ' + type + ' time: ' + time);
-}
+function subscribeEvent(eventId) {
 
-function subscribeEventAttendee(eventId) {
-    firebase.firestore().collection('events').doc(eventId).collection('attendees').onSnapshot(function(snapshot) {
-        const attendees = snapshot.docs.map ( doc => doc.data() )
-        displayAttendees(attendees)
-        const attendeesId = snapshot.docs.map ( doc => doc.id )
-        handleRegisterButton(attendeesId.includes(getUserID()))
+    firebase.firestore().collection('events').doc(eventId).onSnapshot(function(doc) {
+
+        const eventId = doc.id
+        const event = doc.data()
+
+        // check if user is already registered for the event
+        const attendees = Object.values(event.attendees)
+        console.log(attendees)
+        const attendeesId = Object.keys(event.attendees)
+        const isRegistered = attendeesId.includes(getUserID())
+        
+        // then display data
+        displayEventDetail(eventId, event.name, event.startTime, event.description, event.imageUrl, attendees, isRegistered)
     });
+
 }
 
-function loadMyEvents() {
+function getMyEvents() {
+
+    const user = {
+        userId: getUserID(),
+        profilePicUrl: getProfilePicUrl()
+    }
     
-    firebase.auth().onAuthStateChanged(User => {
-        var UserKey = User.uid
-
-        var MyEventList = firebase.firestore().collection('Event').where('EventAttendeeList','array-contains', UserKey).orderBy('EventCreateTimestamp','desc')
-
-        MyEventList.onSnapshot(EventList => EventList.docs.map( EventDoc => { 
-            
-            const EventId = EventDoc.id
-            const EventDocData = EventDoc.data()
-
-            const { EventTitle, EventDescription, EventDate, EventCreateTimestamp, EventType, EventCoverImageUrl, EventAttendeeList } = EventDocData;
-
-            displayMyEventItem(EventId,EventTitle,EventDate,EventDescription,EventCoverImageUrl);
-        }))
-    })
-
-    displayMyEventItem('1', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
-    displayMyEventItem('2', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
-    displayMyEventItem('3', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
+    console.log('load my event with: ' + user)
+    firebase.firestore().collection('events').where('attendees', 'array-contains', user).onSnapshot(function(snapshot) {
+        const events = snapshot.docs.map ( doc => (
+            {id: doc.id, ...doc.data()}
+        ))
+        events.forEach(event => {
+            displayMyEventItem(event.id, event.name, event.startTime, event.description, event.imageUrl)
+        })
+    });
 }
 
 /* Cloud Messaging */
@@ -196,9 +197,10 @@ function hideAuthError() {
 }
 
 function authStateObserver(user) {
-    // console.log('authStateObserver user: ' + user);
+    console.log('authStateObserver user: ' + user);
     // console.log(JSON.stringify(user))
     if (user) {
+        getMyEvents()
         $('#sign-in').hide();
         $('#my-event').show();
         $('#sign-out').show();
@@ -234,13 +236,13 @@ function displayEventCard(id, name, timestamp, description, imageUrl) {
     } 
 
     // set up data
-    div.find('.image').attr('src', imageUrl);
+    div.find('.image').attr('src',  imageUrl ? imageUrl : '/images/temp.png');
     div.find('.name').text(name);
     div.find('.date').text(convertedDate(timestamp));
     div.find('.description').text(description);
 }
 
-function createEventCard(id, name, timestamp, description, imageUrl) {
+function createEventCard(id) {
 
     // add event id to div element
     const div = $(EVENT_TEMPLATE);
@@ -252,8 +254,7 @@ function createEventCard(id, name, timestamp, description, imageUrl) {
     cardTitleLabel.click(function() {
         const eventId = $(this).data().id;
         console.log("See detail for:" + eventId);
-        subscribeEventAttendee(eventId)
-        displayEventDetail(eventId, name, timestamp, description, imageUrl)
+        subscribeEvent(eventId)
     });
 
     // append event to the event list
@@ -277,12 +278,14 @@ function removeAllEventCards() {
 //    '<img src="images/temp.png" class="img-thumbnail rounded float-left">'+
 // '</div>';
 
-function displayEventDetail(id, name, timestamp, description, imageUrl) {
+function displayEventDetail(id, name, timestamp, description, imageUrl, attendees, isRegistered) {
 
     $('#eventDetailModal .name').text(name);
-    $('#eventDetailModal .image').attr('src', imageUrl);
+    $('#eventDetailModal .image').attr('src',  imageUrl ? imageUrl : '/images/temp.png');
     $('#eventDetailModal .date').text(convertedDate(timestamp));
     $('#eventDetailModal .description').text(description);
+
+    displayAttendees(attendees)
 
     // set up register button
     $('#eventDetailModal .register-button').attr('data-id', id);
@@ -295,6 +298,8 @@ function displayEventDetail(id, name, timestamp, description, imageUrl) {
         // displayAttendees(attendees);
         // $('#eventDetailModal .modal-footer').hide();
     })
+
+    handleRegisterButton(isRegistered)
 }
 
 function handleRegisterButton(isRegistered) {
@@ -337,7 +342,7 @@ function displayAttendeeProfilePic(imageUrl) {
 // Template for my events.
 const MY_EVENT_TEMPLATE =
 '<div class="media mb-3">'+
-    '<img src="" class="image mr-3">'+
+    '<img src="/images/temp.png" class="image mr-3" style="width: 180px">'+
     '<div class="media-body">'+
         '<h5 class="name card-title"></h5>'+
         '<h6 class="date mb-2 text-muted"></h6>'+
@@ -353,7 +358,7 @@ function displayMyEventItem(id, name, timestamp, description, imageUrl) {
     } 
 
     // set up data
-    div.find('.image').attr('src', imageUrl);
+    div.find('.image').attr('src', imageUrl ? imageUrl : '/images/temp.png');
     div.find('.name').text(name);
     div.find('.date').text(convertedDate(timestamp));
     div.find('.description').text(description);
@@ -443,4 +448,4 @@ addActionsForDropdownMenu();
 
 getEvents();
 
-loadMyEvents();
+// loadMyEvents();
