@@ -224,7 +224,7 @@ const EVENT_TEMPLATE =
     '<div class="card">'+
         '<img class="image card-img-top" src="">'+
         '<div class="card-body">'+
-            '<h5><a href="#" class="name card-title">d</a></h5>'+
+            '<h5><a href="#" class="name card-title" data-toggle="modal" data-target="#eventDetailModal">d</a></h5>'+
             '<h6 class="date card-subtitle mb-2 text-muted">s</h6>'+
             '<p class="description card-text">s</p>'+
         '</div>'+
@@ -258,11 +258,77 @@ function createEventCard(id) {
     cardTitleLabel.click(function() {
         const eventId = $(this).data().id;
         console.log("See detail for:" + eventId);
+        const attendees = [{
+            'profilePicUrl': 'images/temp.png'
+        },
+        {
+            'profilePicUrl': 'images/temp.png'
+        }]
+        displayEventDetail(id, 'xxx', 'yyy', 'zzz', 'images/temp.png', attendees, true)
+        // TODO: Firestore query (on snapshot) 1 specific event, then display event detail
     });
 
     // append event to the event list
     $('#events').append(div);
     return div;
+}
+
+// const EVENT_DETAIL_TEMPLATE = 
+// '<img class="image img-fluid w-100 mb-3" src="images/temp.png">'+
+// '<h6 class="date mb-2 text-muted">xxx</h6>'+
+// '<p class="description">xxx</p>'+
+// '<h6 class="attendee-title mb-2">Attendees (9)</h6>'+
+// '<div class="attendee-list">'+
+//    '<img src="images/temp.png" class="img-thumbnail rounded float-left">'+
+// '</div>';
+
+function displayEventDetail(id, name, timestamp, description, imageUrl, attendees, isRegistered) {
+
+    $('.modal-title.name').text(name);
+    $('.modal-body .image').attr('src', imageUrl);
+    $('.modal-body .date').text(timestamp);
+    $('.modal-body .description').text(description);
+
+    // attendees
+    $('.modal-body .attendee-title').text('Attendees (' + attendees.length + ')');
+
+    // remove all attendee from the list (if any)
+    $('.modal-body .attendee-list').children().each(function(i) {
+        while(this.attributes.length > 0)
+            this.removeAttribute(this.attributes[0].name);
+    })
+
+    // display attendee profile pic (if needed)
+    if (attendees.length > 0) {
+        attendees.forEach(attendee => {
+            displayAttendeeProfilePic(attendee.profilePicUrl)
+        });
+    }
+
+    // register button
+    $('.register-button').attr('data-id', id);
+
+    if (isRegistered) {
+        // hide register button (if already registered)
+        $('.modal-footer').hide();
+    } else {
+        // add action for register button
+        $('.register-button').click(function() {
+            const eventId = $(this).data().id;
+            console.log('register for: ' + eventId);
+            // TODO: Check if logged in
+            // TODO: Firestore call - to write attendee data
+        })
+    }
+}
+
+const ATTENDEE_TEMPLATE = '<img src="" class="img-thumbnail rounded float-left">'
+
+function displayAttendeeProfilePic(imageUrl) {
+
+    const img = $(ATTENDEE_TEMPLATE);
+    img.attr('src', imageUrl);
+    $('.modal-body .attendee-list').append(img)
 }
 
 // Template for my events.
