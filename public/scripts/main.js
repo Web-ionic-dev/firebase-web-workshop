@@ -232,6 +232,13 @@ function createEventCard(id) {
     return div;
 }
 
+function removeAllEventCards() {
+    // remove all attendee from the list (if any)
+    $('div#events').children().each(function(i) {
+        this.remove()
+    })
+}
+
 // const EVENT_DETAIL_TEMPLATE = 
 // '<img class="image img-fluid w-100 mb-3" src="images/temp.png">'+
 // '<h6 class="date mb-2 text-muted">xxx</h6>'+
