@@ -284,8 +284,7 @@ function displayAttendees(attendees) {
 
     // remove all attendee from the list (if any)
     $('#eventDetailModal .attendee-list').children().each(function(i) {
-        while(this.attributes.length > 0)
-            this.removeAttribute(this.attributes[0].name);
+        this.remove();
     })
 
     // display attendee profile pic (if needed)
