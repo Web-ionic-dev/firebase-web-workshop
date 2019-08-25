@@ -61,11 +61,13 @@ function getProfilePicUrl() {
 
 /* Firestore */
 
-function getEvents(filter = 'All') {
+function getEvents(filter = 'all') {
+
+    removeAllEventCards();
 
     var eventList = firebase.firestore().collection('events')
 
-    if(filter !== 'All') {
+    if(filter !== 'all') {
         eventList = firebase.firestore().collection('events').where('type','==', filter)
     }
 
@@ -390,8 +392,7 @@ function addActionsForDropdownMenu() {
 function handleForDropdownChanged() {
     const type = $('#typeDropdownMenu').val();
     const time = $('#timeDropdownMenu').val();
-    loadAllEvents(type);
-    // queryEvent(type, time);
+    getEvents(type);
 }
 
 function loadIncludes(callback) {
