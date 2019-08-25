@@ -276,6 +276,13 @@ function createEventCard(id) {
     return div;
 }
 
+function removeAllEventCards() {
+    // remove all attendee from the list (if any)
+    $('div#events').children().each(function(i) {
+        this.remove()
+    })
+}
+
 // const EVENT_DETAIL_TEMPLATE = 
 // '<img class="image img-fluid w-100 mb-3" src="images/temp.png">'+
 // '<h6 class="date mb-2 text-muted">xxx</h6>'+
@@ -308,6 +315,8 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
             // TODO: Check if logged in
             // TODO: Firestore call - to write attendee data
             // TODO: refresh view to show attendee updates
+            // displayAttendees(attendees);
+            // $('#eventDetailModal .modal-footer').hide();
         })
     }
 }
@@ -321,8 +330,7 @@ function displayAttendees(attendees) {
 
     // remove all attendee from the list (if any)
     $('#eventDetailModal .attendee-list').children().each(function(i) {
-        while(this.attributes.length > 0)
-            this.removeAttribute(this.attributes[0].name);
+        this.remove();
     })
 
     // display attendee profile pic (if needed)
