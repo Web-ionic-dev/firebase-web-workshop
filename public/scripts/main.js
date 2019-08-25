@@ -271,6 +271,8 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
             // TODO: Check if logged in
             // TODO: Firestore call - to write attendee data
             // TODO: refresh view to show attendee updates
+            // displayAttendees(attendees);
+            // $('#eventDetailModal .modal-footer').hide();
         })
     }
 }
