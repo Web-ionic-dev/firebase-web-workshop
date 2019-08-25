@@ -47,6 +47,10 @@ function signOut() {
     firebase.auth().signOut();
 }
 
+function getUserID() {
+    return firebase.auth().currentUser.uid;
+}
+
 function getUserName() {
     return firebase.auth().currentUser.displayName;
 }
@@ -97,8 +101,17 @@ function loadAllEvents(TypeFilter = 'All') {
     // displayEventCard('4', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
 }
 
-function queryEvent(type, time) {
+function queryEvents(type, time) {
     console.log('query for type: ' + type + ' time: ' + time);
+}
+
+function subscribeEventAttendee(eventId) {
+    firebase.firestore().collection('events').doc(eventId).collection('attendees').onSnapshot(function(snapshot) {
+        const attendees = snapshot.docs.map ( doc => doc.data() )
+        displayAttendees(attendees)
+        const attendeesId = snapshot.docs.map ( doc => doc.id )
+        handleRegisterButton(attendeesId.includes(getUserID()))
+    });
 }
 
 function loadMyEvents() {
@@ -236,7 +249,7 @@ function displayEventCard(id, name, timestamp, description, imageUrl, isRegister
     // use existing or create an event card element
     var div = $('div[data-item-id='+id+']');
     if (div.length === 0) {
-        div = createEventCard(id);
+        div = createEventCard(id, name, timestamp, description, imageUrl);
     } 
 
     // set up data
@@ -246,7 +259,7 @@ function displayEventCard(id, name, timestamp, description, imageUrl, isRegister
     div.find('.description').text(description);
 }
 
-function createEventCard(id) {
+function createEventCard(id, name, timestamp, description, imageUrl) {
 
     // add event id to div element
     const div = $(EVENT_TEMPLATE);
@@ -258,17 +271,8 @@ function createEventCard(id) {
     cardTitleLabel.click(function() {
         const eventId = $(this).data().id;
         console.log("See detail for:" + eventId);
-
-        // FIXME: Firestore query (on snapshot) 1 specific event, then display event detail
-
-        const attendees = [{
-            'profilePicUrl': 'images/temp.png'
-        },
-        {
-            'profilePicUrl': 'images/temp.png'
-        }]
-        displayEventDetail(id, 'xxx', 'yyy', 'zzz', 'images/temp.png', attendees, false)
-        
+        subscribeEventAttendee('UF2LlXh9flz55vMyPYF0')
+        displayEventDetail(id, name, timestamp, description, imageUrl)
     });
 
     // append event to the event list
@@ -292,32 +296,33 @@ function removeAllEventCards() {
 //    '<img src="images/temp.png" class="img-thumbnail rounded float-left">'+
 // '</div>';
 
-function displayEventDetail(id, name, timestamp, description, imageUrl, attendees, isRegistered) {
+function displayEventDetail(id, name, timestamp, description, imageUrl) {
 
     $('#eventDetailModal .name').text(name);
     $('#eventDetailModal .image').attr('src', imageUrl);
     $('#eventDetailModal .date').text(convertedDate(timestamp));
     $('#eventDetailModal .description').text(description);
 
-    displayAttendees(attendees)
-
-    // register button
+    // set up register button
     $('#eventDetailModal .register-button').attr('data-id', id);
+    $('#eventDetailModal .register-button').click(function() {
+        const eventId = $(this).data().id;
+        console.log('register for: ' + eventId);
+        // TODO: Check if logged in
+        // TODO: Firestore call - to write attendee data
+        // TODO: refresh view to show attendee updates
+        // displayAttendees(attendees);
+        // $('#eventDetailModal .modal-footer').hide();
+    })
+}
 
+function handleRegisterButton(isRegistered) {
     if (isRegistered) {
         // hide register button (if already registered)
         $('#eventDetailModal .modal-footer').hide();
     } else {
         // add action for register button
-        $('#eventDetailModal .register-button').click(function() {
-            const eventId = $(this).data().id;
-            console.log('register for: ' + eventId);
-            // TODO: Check if logged in
-            // TODO: Firestore call - to write attendee data
-            // TODO: refresh view to show attendee updates
-            // displayAttendees(attendees);
-            // $('#eventDetailModal .modal-footer').hide();
-        })
+        $('#eventDetailModal .modal-footer').show();   
     }
 }
 
