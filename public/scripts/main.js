@@ -198,7 +198,7 @@ function displayEventCard(id, name, timestamp, description, imageUrl, isRegister
     // set up data
     div.find('.image').attr('src', imageUrl);
     div.find('.name').text(name);
-    div.find('.date').text(timestamp);
+    div.find('.date').text(convertedDate(timestamp));
     div.find('.description').text(description);
 }
 
@@ -252,7 +252,7 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
 
     $('#eventDetailModal .name').text(name);
     $('#eventDetailModal .image').attr('src', imageUrl);
-    $('#eventDetailModal .date').text(timestamp);
+    $('#eventDetailModal .date').text(convertedDate(timestamp));
     $('#eventDetailModal .description').text(description);
 
     displayAttendees(attendees)
@@ -325,7 +325,7 @@ function displayMyEventItem(id, name, timestamp, description, imageUrl) {
     // set up data
     div.find('.image').attr('src', imageUrl);
     div.find('.name').text(name);
-    div.find('.date').text(timestamp);
+    div.find('.date').text(convertedDate(timestamp));
     div.find('.description').text(description);
 }
 
@@ -338,6 +338,11 @@ function createMyEventItem(id) {
     // append event to the event list
     $('#my-events').append(div);
     return div;
+}
+
+function convertedDate(timestamp) {
+    let date = timestamp.toDate()
+    return moment(date).format('DD/MM/YYYY・hh:mm a')
 }
 
 // Dropdown
