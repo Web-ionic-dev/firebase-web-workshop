@@ -71,11 +71,11 @@ function getEvents(filter = 'all') {
         eventList = firebase.firestore().collection('events').where('type','==', filter)
     }
 
-    eventList.onSnapshot(function(snapshot) {
+    eventList.get().then(function(snapshot) {
         const events = snapshot.docs.map ( doc => (
             {id: doc.id, ...doc.data()}
         ))
-        console.log(events)
+        console.log('eventList.get() ' + events)
         events.forEach(event => {
             displayEventCard(event.id, event.name, event.startTime, event.description, event.imageUrl)
         })
