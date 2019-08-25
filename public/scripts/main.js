@@ -84,14 +84,13 @@ function getEvents(filter = 'all') {
 
 function subscribeEvent(eventId) {
 
-    firebase.firestore().collection('events').doc(eventId).onSnapshot(function(doc) {
-
+    const unsubscribe = firebase.firestore().collection('events').doc(eventId).onSnapshot(function(doc) {
+        
         const eventId = doc.id
         const event = doc.data()
-
+        console.log('subscribeEvent: ' + eventId)
         // check if user is already registered for the event
         const attendees = event.attendees ? event.attendees : []
-        console.log(attendees)
         var isRegistered = false
         if (attendees) {
             const attendeesId = attendees.map (attendee => attendee.userId)
@@ -101,7 +100,7 @@ function subscribeEvent(eventId) {
         // then display data
         displayEventDetail(eventId, event.name, event.startTime, event.description, event.imageUrl, attendees, isRegistered)
     });
-
+    return unsubscribe;
 }
 
 function getMyEvents() {
@@ -251,6 +250,7 @@ function displayEventCard(id, name, timestamp, description, imageUrl) {
     div.find('.description').text(description);
 }
 
+var unsubscribeEventCard;
 function createEventCard(id) {
 
     // add event id to div element
@@ -263,7 +263,7 @@ function createEventCard(id) {
     cardTitleLabel.click(function() {
         const eventId = $(this).data().id;
         console.log("See detail for:" + eventId);
-        subscribeEvent(eventId)
+        unsubscribeEventCard = subscribeEvent(eventId)
     });
 
     // append event to the event list
@@ -287,11 +287,19 @@ function removeAllEventCards() {
 //    '<img src="images/temp.png" class="img-thumbnail rounded float-left">'+
 // '</div>';
 
-function setupRegisterButton() {
+function setupEventDetailModal() {
+
+    $('#eventDetailModal').on('hidden.bs.modal', function (e) {
+        if (unsubscribeEventCard) {
+            console.log('unsubscribeEventCard')
+            unsubscribeEventCard();
+        }
+    })
+
     $('#eventDetailModal .register-button').click(function() {
         const eventId = $(this).data().id;
         console.log('register for: ' + eventId);
-        registerForEvent(eventId)
+        registerForEvent(eventId);
         // TODO: Check if logged in
         // TODO: Firestore call - to write attendee data
         // TODO: refresh view to show attendee updates
@@ -434,7 +442,7 @@ $(document).ready(function() {
         // initialize Firebase
         initializeAuthUI();
         initFirebaseAuth();
-        setupRegisterButton();
+        setupEventDetailModal();
     })
 });
 
