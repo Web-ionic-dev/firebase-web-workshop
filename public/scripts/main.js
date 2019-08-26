@@ -122,9 +122,17 @@ function getMyEvents() {
 }
 
 function registerForEvent(eventId) {
+    console.log('register for: ' + eventId);
     const eventRef = firebase.firestore().collection('events').doc(eventId)
     const user =  { profilePicUrl: getProfilePicUrl(), userId: getUserID() }
     eventRef.update({ 'attendees': firebase.firestore.FieldValue.arrayUnion(user)})
+}
+
+function unregisterForEvent(eventId) {
+    console.log('unregister for: ' + eventId);
+    const eventRef = firebase.firestore().collection('events').doc(eventId)
+    const user =  { profilePicUrl: getProfilePicUrl(), userId: getUserID() }
+    eventRef.update({ 'attendees': firebase.firestore.FieldValue.arrayRemove(user)})
 }
 
 /* Cloud Messaging */
@@ -295,17 +303,6 @@ function setupEventDetailModal() {
             unsubscribeEventCard();
         }
     })
-
-    $('#eventDetailModal .register-button').click(function() {
-        const eventId = $(this).data().id;
-        console.log('register for: ' + eventId);
-        registerForEvent(eventId);
-        // TODO: Check if logged in
-        // TODO: Firestore call - to write attendee data
-        // TODO: refresh view to show attendee updates
-        // displayAttendees(attendees);
-        // $('#eventDetailModal .modal-footer').hide();
-    })
 }
 
 function displayEventDetail(id, name, timestamp, description, imageUrl, attendees, isRegistered) {
@@ -319,6 +316,17 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
 
     // set up register button
     $('#eventDetailModal .register-button').attr('data-id', id);
+    $('#eventDetailModal .unregister-button').attr('data-id', id);
+
+    $('#eventDetailModal .register-button').off('click');
+    $('#eventDetailModal .register-button').on('click', function() {
+        registerForEvent(id);
+    })
+
+    $('#eventDetailModal .unregister-button').off('click');
+    $('#eventDetailModal .unregister-button').on('click', function() {
+        unregisterForEvent(id);
+    })
 
     handleRegisterButton(isRegistered)
 }
@@ -326,10 +334,13 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
 function handleRegisterButton(isRegistered) {
     if (isRegistered) {
         // hide register button (if already registered)
-        $('#eventDetailModal .modal-footer').hide();
+        $('#eventDetailModal .unregister-button').show();
+        $('#eventDetailModal .register-button').hide();
+
     } else {
         // add action for register button
-        $('#eventDetailModal .modal-footer').show();   
+        $('#eventDetailModal .register-button').show();
+        $('#eventDetailModal .unregister-button').hide();   
     }
 }
 
