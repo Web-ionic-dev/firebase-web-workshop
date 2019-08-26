@@ -47,8 +47,8 @@ function signOut() {
     firebase.auth().signOut();
 }
 
-function isUserSignIn() {
-    return firebase.auth().currentUser;
+function getUserID() {
+    return firebase.auth().currentUser.uid;
 }
 
 function getUserName() {
@@ -61,24 +61,78 @@ function getProfilePicUrl() {
 
 /* Firestore */
 
-function loadAllEvents() {
-    // TODO: load once
-    // TODO: add snapshot, if data changed, then auto update the event card
-    displayEventCard('1', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
-    displayEventCard('2', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', false);
-    displayEventCard('3', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
-    displayEventCard('4', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png', true);
+function getEvents(filter = 'all') {
+
+    removeAllEventCards();
+
+    var eventList = firebase.firestore().collection('events')
+
+    if(filter !== 'all') {
+        eventList = firebase.firestore().collection('events').where('type','==', filter)
+    }
+
+    eventList.get().then(function(snapshot) {
+        const events = snapshot.docs.map ( doc => (
+            {id: doc.id, ...doc.data()}
+        ))
+        console.log('eventList.get() ' + events)
+        events.forEach(event => {
+            displayEventCard(event.id, event.name, event.startTime, event.description, event.imageUrl)
+        })
+    });
 }
 
-function queryEvent(type, time) {
-    console.log('query for type: ' + type + ' time: ' + time);
+function subscribeEvent(eventId) {
+
+    const unsubscribe = firebase.firestore().collection('events').doc(eventId).onSnapshot(function(doc) {
+        
+        const eventId = doc.id
+        const event = doc.data()
+        console.log('subscribeEvent: ' + eventId)
+        // check if user is already registered for the event
+        const attendees = event.attendees ? event.attendees : []
+        var isRegistered = false
+        if (attendees) {
+            const attendeesId = attendees.map (attendee => attendee.userId)
+            isRegistered = attendeesId.includes(getUserID())
+        }
+        
+        // then display data
+        displayEventDetail(eventId, event.name, event.startTime, event.description, event.imageUrl, attendees, isRegistered)
+    });
+    return unsubscribe;
 }
 
-function loadMyEvents() {
-    console.log('loadMyEvents')
-    displayMyEventItem('1', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
-    displayMyEventItem('2', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
-    displayMyEventItem('3', 'Firebase Web Workshop', Date().toString(), 'ggg', 'images/temp.png');
+function getMyEvents() {
+
+    const user = {
+        userId: getUserID(),
+        profilePicUrl: getProfilePicUrl()
+    }
+    
+    console.log('load my event with: ' + user)
+    firebase.firestore().collection('events').where('attendees', 'array-contains', user).onSnapshot(function(snapshot) {
+        const events = snapshot.docs.map ( doc => (
+            {id: doc.id, ...doc.data()}
+        ))
+        events.forEach(event => {
+            displayMyEventItem(event.id, event.name, event.startTime, event.description, event.imageUrl)
+        })
+    });
+}
+
+function registerForEvent(eventId) {
+    console.log('register for: ' + eventId);
+    const eventRef = firebase.firestore().collection('events').doc(eventId)
+    const user =  { profilePicUrl: getProfilePicUrl(), userId: getUserID() }
+    eventRef.update({ 'attendees': firebase.firestore.FieldValue.arrayUnion(user)})
+}
+
+function unregisterForEvent(eventId) {
+    console.log('unregister for: ' + eventId);
+    const eventRef = firebase.firestore().collection('events').doc(eventId)
+    const user =  { profilePicUrl: getProfilePicUrl(), userId: getUserID() }
+    eventRef.update({ 'attendees': firebase.firestore.FieldValue.arrayRemove(user)})
 }
 
 /* Cloud Messaging */
@@ -160,7 +214,9 @@ function hideAuthError() {
 
 function authStateObserver(user) {
     console.log('authStateObserver user: ' + user);
+    // console.log(JSON.stringify(user))
     if (user) {
+        getMyEvents()
         $('#sign-in').hide();
         $('#my-event').show();
         $('#sign-out').show();
@@ -187,21 +243,22 @@ const EVENT_TEMPLATE =
     '</div>'+
 '</div>';
 
-function displayEventCard(id, name, timestamp, description, imageUrl, isRegistered) {
+function displayEventCard(id, name, timestamp, description, imageUrl) {
 
     // use existing or create an event card element
     var div = $('div[data-item-id='+id+']');
     if (div.length === 0) {
-        div = createEventCard(id);
+        div = createEventCard(id, name, timestamp, description, imageUrl);
     } 
 
     // set up data
-    div.find('.image').attr('src', imageUrl);
+    div.find('.image').attr('src',  imageUrl ? imageUrl : '/images/temp.png');
     div.find('.name').text(name);
     div.find('.date').text(convertedDate(timestamp));
     div.find('.description').text(description);
 }
 
+var unsubscribeEventCard;
 function createEventCard(id) {
 
     // add event id to div element
@@ -214,17 +271,7 @@ function createEventCard(id) {
     cardTitleLabel.click(function() {
         const eventId = $(this).data().id;
         console.log("See detail for:" + eventId);
-
-        // FIXME: Firestore query (on snapshot) 1 specific event, then display event detail
-
-        const attendees = [{
-            'profilePicUrl': 'images/temp.png'
-        },
-        {
-            'profilePicUrl': 'images/temp.png'
-        }]
-        displayEventDetail(id, 'xxx', 'yyy', 'zzz', 'images/temp.png', attendees, false)
-        
+        unsubscribeEventCard = subscribeEvent(eventId)
     });
 
     // append event to the event list
@@ -248,32 +295,52 @@ function removeAllEventCards() {
 //    '<img src="images/temp.png" class="img-thumbnail rounded float-left">'+
 // '</div>';
 
+function setupEventDetailModal() {
+
+    $('#eventDetailModal').on('hidden.bs.modal', function (e) {
+        if (unsubscribeEventCard) {
+            console.log('unsubscribeEventCard')
+            unsubscribeEventCard();
+        }
+    })
+}
+
 function displayEventDetail(id, name, timestamp, description, imageUrl, attendees, isRegistered) {
 
     $('#eventDetailModal .name').text(name);
-    $('#eventDetailModal .image').attr('src', imageUrl);
+    $('#eventDetailModal .image').attr('src',  imageUrl ? imageUrl : '/images/temp.png');
     $('#eventDetailModal .date').text(convertedDate(timestamp));
     $('#eventDetailModal .description').text(description);
 
     displayAttendees(attendees)
 
-    // register button
+    // set up register button
     $('#eventDetailModal .register-button').attr('data-id', id);
+    $('#eventDetailModal .unregister-button').attr('data-id', id);
 
+    $('#eventDetailModal .register-button').off('click');
+    $('#eventDetailModal .register-button').on('click', function() {
+        registerForEvent(id);
+    })
+
+    $('#eventDetailModal .unregister-button').off('click');
+    $('#eventDetailModal .unregister-button').on('click', function() {
+        unregisterForEvent(id);
+    })
+
+    handleRegisterButton(isRegistered)
+}
+
+function handleRegisterButton(isRegistered) {
     if (isRegistered) {
         // hide register button (if already registered)
-        $('#eventDetailModal .modal-footer').hide();
+        $('#eventDetailModal .unregister-button').show();
+        $('#eventDetailModal .register-button').hide();
+
     } else {
         // add action for register button
-        $('#eventDetailModal .register-button').click(function() {
-            const eventId = $(this).data().id;
-            console.log('register for: ' + eventId);
-            // TODO: Check if logged in
-            // TODO: Firestore call - to write attendee data
-            // TODO: refresh view to show attendee updates
-            // displayAttendees(attendees);
-            // $('#eventDetailModal .modal-footer').hide();
-        })
+        $('#eventDetailModal .register-button').show();
+        $('#eventDetailModal .unregister-button').hide();   
     }
 }
 
@@ -307,7 +374,7 @@ function displayAttendeeProfilePic(imageUrl) {
 // Template for my events.
 const MY_EVENT_TEMPLATE =
 '<div class="media mb-3">'+
-    '<img src="" class="image mr-3">'+
+    '<img src="/images/temp.png" class="image mr-3" style="width: 180px">'+
     '<div class="media-body">'+
         '<h5 class="name card-title"></h5>'+
         '<h6 class="date mb-2 text-muted"></h6>'+
@@ -323,7 +390,7 @@ function displayMyEventItem(id, name, timestamp, description, imageUrl) {
     } 
 
     // set up data
-    div.find('.image').attr('src', imageUrl);
+    div.find('.image').attr('src', imageUrl ? imageUrl : '/images/temp.png');
     div.find('.name').text(name);
     div.find('.date').text(convertedDate(timestamp));
     div.find('.description').text(description);
@@ -362,7 +429,7 @@ function addActionsForDropdownMenu() {
 function handleForDropdownChanged() {
     const type = $('#typeDropdownMenu').val();
     const time = $('#timeDropdownMenu').val();
-    queryEvent(type, time);
+    getEvents(type);
 }
 
 function loadIncludes(callback) {
@@ -386,13 +453,18 @@ $(document).ready(function() {
         // initialize Firebase
         initializeAuthUI();
         initFirebaseAuth();
+        setupEventDetailModal();
     })
 });
 
 addActionsForDropdownMenu();
 
+// isUserSignIn()
+
+// getUID()
+
 // TODO: checkSetup();
 
-loadAllEvents();
+getEvents();
 
-loadMyEvents();
+// loadMyEvents();

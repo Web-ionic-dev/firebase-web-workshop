@@ -1,0 +1,10 @@
++events
+    >eventId
+        name (string)
+        description (string)
+        startTime (timestamp)
+        type (string)
+        imageUrl (string)
+        attendees (array <map>)
+            > userId
+            > profilePicUrl

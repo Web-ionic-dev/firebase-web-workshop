@@ -23,13 +23,8 @@
             <select class="custom-select-sm mt-3" id="typeDropdownMenu">
                 <option value="all">All type</option>
                 <option value="workshop">Workshop</option>
+                <option value="competition">Competition</option>
                 <option value="meetup">Meetup</option>
-            </select>
-        
-            <select class="custom-select-sm mt-3" id="timeDropdownMenu">
-                <option value="all">All time</option>
-                <option value="week">This week</option>
-                <option value="month">This month</option>
             </select>
 
             <!-- Event list -->
@@ -53,7 +48,8 @@
                         <div class="attendee-list"></div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="register-button btn btn-primary">Register</button>
+                        <button type="button" class="register-button btn btn-primary" style="display: none">Register</button>
+                        <button type="button" class="unregister-button btn btn-outline-secondary" style="display: none">Unregister</button>
                     </div>
                 </div>
                 </div>
@@ -72,6 +68,7 @@
         <!-- Import Firebase -->
         <script src="/__/firebase/6.3.4/firebase-app.js"></script>
         <script src="/__/firebase/6.3.4/firebase-auth.js"></script>
+        <script src="/__/firebase/6.4.0/firebase-firestore.js"></script>
         <script src="/__/firebase/init.js"></script>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
