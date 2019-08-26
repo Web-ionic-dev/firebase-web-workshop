@@ -137,9 +137,29 @@ function unregisterForEvent(eventId) {
 
 /* Cloud Messaging */
 
-function requestNotificationsPermissions() {}
+function requestNotificationsPermissions() {
+    console.log('Requesting notifications permission...');
+    firebase.messaging().requestPermission().then(function() {
+      // Notification permission granted.
+      saveMessagingDeviceToken();
+    }).catch(function(error) {
+      console.error('Unable to get permission to notify.', error);
+    });
+  }
 
-function saveMessagingDeviceToken() {}
+function saveMessagingDeviceToken() {
+    firebase.messaging().getToken().then(function(currentToken) {
+      if (currentToken) {
+        console.log('Got FCM device token:', currentToken);
+      } else {
+        // Need to request permissions to show notifications.
+        requestNotificationsPermissions();
+      }
+    }).catch(function(error){
+      console.error('Unable to get messaging token.', error);
+    });
+  }
+  
 
 /* UI */
 
@@ -468,3 +488,5 @@ addActionsForDropdownMenu();
 getEvents();
 
 // loadMyEvents();
+
+requestNotificationsPermissions();
