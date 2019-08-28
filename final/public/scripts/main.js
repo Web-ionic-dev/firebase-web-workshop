@@ -62,11 +62,13 @@ function getUserId() {
 }
 
 function getUserName() {
-    return isUserSignedIn() ? firebase.auth().currentUser.displayName : ''
+    if (!isUserSignedIn) return ''
+    return firebase.auth().currentUser.displayName || ''
 }
 
 function getProfilePicUrl() {
-    return isUserSignedIn() ? firebase.auth().currentUser.photoURL : '/images/profile_placeholder.png' 
+    if (!isUserSignedIn) return ''
+    return firebase.auth().currentUser.photoURL || '/images/profile_placeholder.png' 
 }
 
 /* Firestore */
@@ -342,6 +344,7 @@ const EVENT_DETAIL_TEMPLATE =
         '<div class="attendee-list"></div>'+
     '</div>'+
     '<div class="modal-footer">'+
+        '<span id="detail-error-message"></span>'+
         '<button type="button" class="register-button btn btn-primary" style="display: none">Register</button>'+
         '<button type="button" class="unregister-button btn btn-outline-secondary" style="display: none">Unregister</button>'+
     '</div>'+
@@ -385,14 +388,14 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
 
     $('#eventDetailModal .register-button').off('click') 
     $('#eventDetailModal .register-button').on('click', function() {
-        if (isUserSignedIn()) {
+        if (checkIfUserSignInWithMessage()) {
             registerForEvent(id) 
         }
     })
 
     $('#eventDetailModal .unregister-button').off('click') 
     $('#eventDetailModal .unregister-button').on('click', function() {
-        if (isUserSignedIn()) {
+        if (checkIfUserSignInWithMessage()) {
             unregisterForEvent(id) 
         }
     })
@@ -438,6 +441,14 @@ function displayAttendeeProfilePic(imageUrl) {
     const img = $(ATTENDEE_TEMPLATE) 
     img.attr('src', imageUrl) 
     $('.modal-body .attendee-list').append(img)
+}
+
+function checkIfUserSignInWithMessage() {
+    if (isUserSignedIn()) {
+        return true
+    }
+    $('#detail-error-message').text('You must sign in first!')
+    return false
 }
 
 // Template for my events.
