@@ -121,6 +121,7 @@ function getMyEvents() {
         const events = snapshot.docs.map ( doc => (
             {id: doc.id, ...doc.data()}
         ))
+        removeAllMyEventItems()
         events.forEach(event => {
             displayMyEventItem(event.id, event.name, event.startTime, event.description, event.imageUrl)
         })
@@ -281,7 +282,7 @@ const EVENT_TEMPLATE =
 function displayEventCard(id, name, timestamp, description, imageUrl) {
 
     // use existing or create an event card element
-    var div = $('div[data-item-id='+id+']') 
+    var div = $('#event[data-item-id='+id+']') 
     if (div.length === 0) {
         div = createEventCard(id, name, timestamp, description, imageUrl) 
     } 
@@ -315,7 +316,7 @@ function createEventCard(id) {
 }
 
 function removeAllEventCards() {
-    // remove all attendee from the list (if any)
+    // remove all cards from the list (if any)
     $('div#events').children().each(function(i) {
         this.remove()
     })
@@ -436,7 +437,7 @@ const MY_EVENT_TEMPLATE =
 '<div class="media mb-3">'+
     '<img src="/images/temp.png" class="image mr-3" style="width: 180px">'+
     '<div class="media-body">'+
-        '<h5 class="name card-title"></h5>'+
+        '<h5 class="card-title"><a href="#" class="name" data-toggle="modal" data-target="#eventDetailModal"></a></h5>'+
         '<h6 class="date mb-2 text-muted"></h6>'+
         '<p class="description"></p>'+
     '</div>'+
@@ -444,7 +445,7 @@ const MY_EVENT_TEMPLATE =
 
 function displayMyEventItem(id, name, timestamp, description, imageUrl) {
     // use existing or create an event card element
-    var div = $('div[data-item-id='+id+']') 
+    var div = $('#my-events[data-item-id='+id+']') 
     if (div.length === 0) {
         div = createMyEventItem(id) 
     } 
@@ -462,9 +463,25 @@ function createMyEventItem(id) {
     const div = $(MY_EVENT_TEMPLATE) 
     div.attr('data-item-id', id) 
 
+    // Add action to card title
+    const cardTitleLabel = div.find('.card-title') 
+    cardTitleLabel.attr('data-id', id) 
+    cardTitleLabel.click(function() {
+        const eventId = $(this).data().id 
+        console.log("See detail for:" + eventId) 
+        unsubscribeEventCard = subscribeEvent(eventId)
+    }) 
+
     // append event to the event list
     $('#my-events').append(div) 
     return div 
+}
+
+function removeAllMyEventItems() {
+    // remove all events from the list (if any)
+    $('div#my-events').children().each(function(i) {
+        this.remove()
+    })
 }
 
 function convertedDate(timestamp) {
