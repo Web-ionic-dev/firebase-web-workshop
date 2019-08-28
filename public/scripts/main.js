@@ -182,7 +182,11 @@ function initializeAuthUI() {
         console.log('sign in submmitted');
         const email = $('#signInInputEmail').val();
         const password = $('#signInInputPassword').val();
-        signIn(email, password);
+        if (email && password) {
+            signIn(email, password);
+        } else {
+            displayAuthError('Please enter all the required information')
+        }
         event.preventDefault();
 
     });
@@ -192,7 +196,11 @@ function initializeAuthUI() {
         const email = $('#signUpInputEmail').val();
         const password = $('#signUpInputPassword').val();
         const name = $('#signUpInputName').val();
-        signUp(email, password, name);
+        if (email && password && name) {
+            signUp(email, password, name);
+        } else {
+            displayAuthError('Please enter all the required information')
+        }
         event.preventDefault();
     });
 
