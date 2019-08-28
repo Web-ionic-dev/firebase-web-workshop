@@ -53,16 +53,20 @@ function signOut() {
     firebase.auth().signOut() 
 }
 
+function isUserSignedIn() {
+    return !!firebase.auth().currentUser
+}
+
 function getUserId() {
-    return firebase.auth().currentUser.uid 
+    return isUserSignedIn() ? firebase.auth().currentUser.uid : ''
 }
 
 function getUserName() {
-    return firebase.auth().currentUser.displayName 
+    return isUserSignedIn() ? firebase.auth().currentUser.displayName : ''
 }
 
 function getProfilePicUrl() {
-    return firebase.auth().currentUser.photoURL || '/images/profile_placeholder.png' 
+    return isUserSignedIn() ? firebase.auth().currentUser.photoURL : '/images/profile_placeholder.png' 
 }
 
 /* Firestore */
@@ -381,12 +385,16 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
 
     $('#eventDetailModal .register-button').off('click') 
     $('#eventDetailModal .register-button').on('click', function() {
-        registerForEvent(id) 
+        if (isUserSignedIn()) {
+            registerForEvent(id) 
+        }
     })
 
     $('#eventDetailModal .unregister-button').off('click') 
     $('#eventDetailModal .unregister-button').on('click', function() {
-        unregisterForEvent(id) 
+        if (isUserSignedIn()) {
+            unregisterForEvent(id) 
+        }
     })
 
     handleRegisterButton(isRegistered)
