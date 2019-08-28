@@ -5,14 +5,14 @@
 // Checks that the Firebase SDK has been correctly setup and configured.
 function checkSetup() {
     if (!window.firebase || !(firebase.app instanceof Function) || !firebase.app().options) {
-      window.alert('You have not configured and imported the Firebase SDK. ') 
+      window.alert('You have not configured and imported the Firebase SDK. ')
     }
 }
 
 /* Authentication */
 
 function initFirebaseAuth() {
-    firebase.auth().onAuthStateChanged(authStateObserver) 
+    firebase.auth().onAuthStateChanged(authStateObserver)
 }
 
 function signUp(email, password, name) {
@@ -28,8 +28,8 @@ function signUp(email, password, name) {
         })
     }).catch(function(error) {
         console.log('sign up error: ' + error)
-        var errorMessage = error.message 
-        displayAuthError(errorMessage) 
+        var errorMessage = error.message
+        displayAuthError(errorMessage)
     }) 
 }
 
@@ -38,8 +38,8 @@ function signIn(email, password) {
     firebase.auth().signInWithEmailAndPassword(email, password).then(function(user) {
         console.log(user) 
     }).catch(function(error) {
-        var errorMessage = error.message 
-        displayAuthError(errorMessage) 
+        var errorMessage = error.message
+        displayAuthError(errorMessage)
     }) 
     
 }
@@ -181,26 +181,21 @@ function saveMessagingDeviceToken() {
 function initializeAuthUI() {
 
     // Add actions to elements
-    $('#sign-out').click(signOut) 
-
-    $('#swapToSignUp').click(function(){
-        swapToSignUpMode() 
-    }) 
-
-    $('#swapToSignIn').click(function(){
-        swapToSignInMode() 
-    }) 
+    $('#sign-out').click(signOut)
+    $('#swapToSignUp').click(swapToSignUpMode)
+    $('#swapToSignIn').click(swapToSignUpMode)
+    $('#signInInputEmail, #signInInputPassword, #signUpInputEmail, #signUpInputPassword, #signUpInputName').change(hideAuthError) 
 
     $('#signin-form').submit(function(){
-        console.log('sign in submmitted') 
-        const email = $('#signInInputEmail').val() 
-        const password = $('#signInInputPassword').val() 
+        console.log('sign in submmitted')
+        const email = $('#signInInputEmail').val()
+        const password = $('#signInInputPassword').val()
         if (email && password) {
-            signIn(email, password) 
+            signIn(email, password)
         } else {
             displayAuthError('Please enter all the required information')
         }
-        event.preventDefault() 
+        event.preventDefault()
 
     }) 
 
@@ -214,42 +209,38 @@ function initializeAuthUI() {
         } else {
             displayAuthError('Please enter all the required information')
         }
-        event.preventDefault() 
+        event.preventDefault()
     }) 
 
     $('#signInWithGoogle').click(function(){
-        hideAuthError() 
-        signInWithGoogle() 
-    }) 
-
-    $('#signInInputEmail, #signInInputPassword, #signUpInputEmail, #signUpInputPassword, #signUpInputName').change(function() {
-        hideAuthError() 
+        hideAuthError()
+        signInWithGoogle()
     }) 
 }
 
 function swapToSignInMode() {
-    $('#signin-form').show() 
-    $('#signup-form').hide() 
-    $('.modal-title').text('Sign In') 
-    $('#error-message').hide() 
+    $('#signin-form').show()
+    $('#signup-form').hide()
+    $('.modal-title').text('Sign In')
+    $('#error-message').hide()
 }
 
 function swapToSignUpMode() {
-    $('#signin-form').hide() 
-    $('#signup-form').show() 
-    $('.modal-title').text('Sign Up') 
-    $('#error-message').hide() 
+    $('#signin-form').hide()
+    $('#signup-form').show()
+    $('.modal-title').text('Sign Up')
+    $('#error-message').hide()
 }
 
 function displayAuthError(err) {
-    var errorMessageDiv = $('#error-message') 
-    errorMessageDiv.text(err) 
-    errorMessageDiv.show() 
+    var errorMessageDiv = $('#error-message')
+    errorMessageDiv.text(err)
+    errorMessageDiv.show()
 }
 
 function hideAuthError() {
     if ($('#error-message').is(':visible')) {
-        $('#error-message').hide() 
+        $('#error-message').hide()
     }
 }
 
@@ -257,14 +248,14 @@ function authStateObserver(user) {
     console.log(JSON.stringify(user))
     if (user) {
         getMyEvents()
-        $('#sign-in').hide() 
-        $('#my-event').show() 
-        $('#sign-out').show() 
+        $('#sign-in').hide()
+        $('#my-event').show()
+        $('#sign-out').show()
         $('#username').text(getUserName())
     } else {
-        $('#sign-in').show() 
-        $('#my-event').hide() 
-        $('#sign-out').hide() 
+        $('#sign-in').show()
+        $('#my-event').hide()
+        $('#sign-out').hide()
         $('#username').text('')
     }
     $('#authModal').modal('hide') 
@@ -351,7 +342,6 @@ const EVENT_DETAIL_TEMPLATE =
 '</div>'
 
 function setupEventDetailModal () {
-
     $('#eventDetailModal').on('hidden.bs.modal', function (e) {
         if (unsubscribeEventCard) {
             console.log('unsubscribeEventCard')
@@ -511,20 +501,11 @@ function convertedDate(timestamp) {
 // Dropdown
 
 function addActionsForDropdownMenu() {
-
-    // add actions for dropdowm
-    $('#typeDropdownMenu').change(function() {
-        handleForDropdownChanged() 
-    }) 
-
-    $('#timeDropdownMenu').change(function() {
-        handleForDropdownChanged() 
-    }) 
+    $('#typeDropdownMenu').change(handleForDropdownChanged)
 }
 
 function handleForDropdownChanged() {
     const type = $('#typeDropdownMenu').val() 
-    const time = $('#timeDropdownMenu').val() 
     getEvents(type) 
 }
 
