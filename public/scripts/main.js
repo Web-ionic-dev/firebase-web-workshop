@@ -18,10 +18,16 @@ function initFirebaseAuth() {
 function signUp(email, password, name) {
     console.log('sign up with: ' + email + ' ' + password + ' ' + name) 
     firebase.auth().createUserWithEmailAndPassword(email, password).then(function(user) {
-        return user.updateProfile({
-            displayName: name
+        firebase.auth().currentUser.updateProfile({
+          displayName: name
+        }).then(function(){
+            console.log('update profile success')
+            authStateObserver(user)
+        }).catch(function(error) {
+            console.log('update profile error')
         })
     }).catch(function(error) {
+        console.log('sign up error: ' + error)
         var errorMessage = error.message 
         displayAuthError(errorMessage) 
     }) 
@@ -241,17 +247,18 @@ function hideAuthError() {
 }
 
 function authStateObserver(user) {
-    console.log('authStateObserver user: ' + user) 
-    // console.log(JSON.stringify(user))
+    console.log(JSON.stringify(user))
     if (user) {
         getMyEvents()
         $('#sign-in').hide() 
         $('#my-event').show() 
         $('#sign-out').show() 
+        $('#username').text(getUserName())
     } else {
         $('#sign-in').show() 
         $('#my-event').hide() 
         $('#sign-out').hide() 
+        $('#username').text('')
     }
     $('#authModal').modal('hide') 
 }
