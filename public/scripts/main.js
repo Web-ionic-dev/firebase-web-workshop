@@ -47,7 +47,7 @@ function signOut() {
     firebase.auth().signOut();
 }
 
-function getUserID() {
+function getUserId() {
     return firebase.auth().currentUser.uid;
 }
 
@@ -94,7 +94,7 @@ function subscribeEvent(eventId) {
         var isRegistered = false
         if (attendees) {
             const attendeesId = attendees.map (attendee => attendee.userId)
-            isRegistered = attendeesId.includes(getUserID())
+            isRegistered = attendeesId.includes(getUserId())
         }
         
         // then display data
@@ -106,7 +106,7 @@ function subscribeEvent(eventId) {
 function getMyEvents() {
 
     const user = {
-        userId: getUserID(),
+        userId: getUserId(),
         profilePicUrl: getProfilePicUrl()
     }
     
@@ -124,14 +124,14 @@ function getMyEvents() {
 function registerForEvent(eventId) {
     console.log('register for: ' + eventId);
     const eventRef = firebase.firestore().collection('events').doc(eventId)
-    const user =  { profilePicUrl: getProfilePicUrl(), userId: getUserID() }
+    const user =  { profilePicUrl: getProfilePicUrl(), userId: getUserId() }
     eventRef.update({ 'attendees': firebase.firestore.FieldValue.arrayUnion(user)})
 }
 
 function unregisterForEvent(eventId) {
     console.log('unregister for: ' + eventId);
     const eventRef = firebase.firestore().collection('events').doc(eventId)
-    const user =  { profilePicUrl: getProfilePicUrl(), userId: getUserID() }
+    const user =  { profilePicUrl: getProfilePicUrl(), userId: getUserId() }
     eventRef.update({ 'attendees': firebase.firestore.FieldValue.arrayRemove(user)})
 }
 
