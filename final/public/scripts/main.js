@@ -348,7 +348,7 @@ function setupEventDetailModal () {
     $('#eventDetailModal').on('hidden.bs.modal', function (e) {
         if (unsubscribeEventCard) {
             console.log('unsubscribeEventCard')
-            $('.modal-content').remove()
+            $('#eventDetailModal .modal-content').remove()
             unsubscribeEventCard() 
         }
     })
@@ -357,7 +357,7 @@ function setupEventDetailModal () {
 function createEventDetail(id) {
     const d = $(EVENT_DETAIL_TEMPLATE)
     d.attr('data-item-id', id)
-    $('.modal-dialog').append(d) 
+    $('#eventDetailModal .modal-dialog').append(d) 
     setupEventDetailModal()
 }
 
