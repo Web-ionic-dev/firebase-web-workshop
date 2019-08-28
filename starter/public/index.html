@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <link rel="stylesheet" href="styles/main.css">
+
+        <title>Events</title>
+    </head>
+    <body>
+        <div data-load="/includes/header.html"></div>
+
+        <div class="container py-5">
+
+            <!-- Title -->
+            <h1>Events</h1>
+
+            <!-- Dropdown -->
+            <select class="custom-select-sm mt-3" id="typeDropdownMenu">
+                <option value="all">All type</option>
+                <option value="workshop">Workshop</option>
+                <option value="competition">Competition</option>
+                <option value="meetup">Meetup</option>
+            </select>
+
+            <!-- Event list -->
+            <div id="events" class="row"></div>
+
+            <!-- Event detail -->
+            <div class="modal fade" id="eventDetailModal" tabindex="-1" role="dialog" aria-labelledby="eventDetailTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered" role="document">
+                    <!-- Event detail content -->
+                </div>
+            </div>
+
+        </div>
+
+        <div data-load="/includes/footer.html"></div>
+
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <script src="https://kit.fontawesome.com/b6ec2f7a5f.js"></script>
+        
+        <!-- Import Firebase -->
+        <script src="/__/firebase/6.4.0/firebase-app.js"></script>
+        <script src="/__/firebase/6.4.0/firebase-auth.js"></script>
+        <script src="/__/firebase/6.4.0/firebase-firestore.js"></script>
+        <script src="/__/firebase/6.4.0/firebase-messaging.js"></script>
+        <script src="/__/firebase/init.js"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="scripts/main.js"></script>
+    </body>
+</html>

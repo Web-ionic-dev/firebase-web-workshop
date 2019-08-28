@@ -1,0 +1,71 @@
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="/">Event</a>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <span id="username" class="navbar-text"></span>
+                    </li>
+                    <li id="my-event" class="nav-item" style="display: none">
+                        <a class="nav-link" href="myEvents.html">My Events</a>
+                    </li>
+                    <li id="sign-in" class="nav-item" style="display: none">
+                        <a class="nav-link" href="#" data-toggle="modal" data-target="#authModal">Sign in</a>
+                    </li>
+                    <li id="sign-out" class="nav-item" style="display: none">
+                        <a class="nav-link" href="#">Sign out</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+  
+        <!-- Modal -->
+        <div class="modal fade" id="authModal" tabindex="-1" role="dialog" aria-labelledby="authModalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sign In</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="error-message" class="alert alert-danger error-message" style="display:none"></div>
+
+                    <!-- Sign In -->
+                    <form id="signin-form">
+                        <div class="form-group">
+                            <label for="signInInputEmail">Email address</label>
+                            <input type="email" class="form-control" id="signInInputEmail" placeholder="Enter email">
+                        </div>
+                        <div class="form-group">
+                            <label for="signInInputPassword">Password</label>
+                            <input type="password" class="form-control" id="signInInputPassword" placeholder="Password">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                        <small>Don't have an account? <a id="swapToSignUp" href="#">Sign Up</a></small> 
+                    </form>
+
+                    <!-- Sign Up -->
+                    <form id="signup-form" style="display:none">
+                        <div class="form-group">
+                            <label for="signUpInputEmail">Email address</label>
+                            <input type="email" class="form-control" id="signUpInputEmail" placeholder="Enter email">
+                        </div>
+                        <div class="form-group">
+                                <label for="signUpInputName">Name</label>
+                                <input type="text" class="form-control" id="signUpInputName" placeholder="Enter name">
+                            </div>
+                        <div class="form-group">
+                            <label for="signUpInputPassword">Password</label>
+                            <input type="password" class="form-control" id="signUpInputPassword" placeholder="Password">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+                        <small>Already have an account? <a id="swapToSignIn" href="#">Sign In</a></small>
+                    </form>
+
+                    <hr>
+                    <button id="signInWithGoogle" class="btn btn-danger btn-block">Connect with Google</button>
+                </div>
+            </div>
+            </div>
+        </div>
