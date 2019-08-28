@@ -321,26 +321,51 @@ function removeAllEventCards() {
     })
 }
 
-// const EVENT_DETAIL_TEMPLATE = 
-// '<img class="image img-fluid w-100 mb-3" src="images/temp.png">'+
-// '<h6 class="date mb-2 text-muted">xxx</h6>'+
-// '<p class="description">xxx</p>'+
-// '<h6 class="attendee-title mb-2">Attendees (9)</h6>'+
-// '<div class="attendee-list">'+
-//    '<img src="images/temp.png" class="img-thumbnail rounded float-left">'+
-// '</div>' 
+const EVENT_DETAIL_TEMPLATE = 
+'<div class="modal-content">'+
+    '<div class="modal-header">'+
+        '<h5 class="modal-title name"></h5>'+
+        '<button type="button" class="close" data-dismiss="modal" aria-label="Close">'+
+            '<span aria-hidden="true">&times;</span>'+
+        '</button>'+
+    '</div>'+
+    '<div class="modal-body">'+
+        '<img class="image img-fluid w-100 mb-3" src="images/temp.png">'+
+        '<h6 class="date mb-2 text-muted"></h6>'+
+        '<p class="description"></p>'+
+        '<h6 class="attendee-title mb-2">Attendees</h6>'+
+        '<div class="attendee-list"></div>'+
+    '</div>'+
+    '<div class="modal-footer">'+
+        '<button type="button" class="register-button btn btn-primary" style="display: none">Register</button>'+
+        '<button type="button" class="unregister-button btn btn-outline-secondary" style="display: none">Unregister</button>'+
+    '</div>'+
+'</div>'
 
-function setupEventDetailModal() {
+function setupEventDetailModal () {
 
     $('#eventDetailModal').on('hidden.bs.modal', function (e) {
         if (unsubscribeEventCard) {
             console.log('unsubscribeEventCard')
+            $('.modal-content').remove()
             unsubscribeEventCard() 
         }
     })
 }
 
+function createEventDetail(id) {
+    const d = $(EVENT_DETAIL_TEMPLATE)
+    d.attr('data-item-id', id)
+    $('.modal-dialog').append(d) 
+    setupEventDetailModal()
+}
+
 function displayEventDetail(id, name, timestamp, description, imageUrl, attendees, isRegistered) {
+
+    var div = $('.modal-content[data-item-id='+id+']') 
+    if (div.length === 0) {
+        createEventDetail(id)
+    }
 
     $('#eventDetailModal .name').text(name) 
     $('#eventDetailModal .image').attr('src',  imageUrl ? imageUrl : '/images/temp.png') 
