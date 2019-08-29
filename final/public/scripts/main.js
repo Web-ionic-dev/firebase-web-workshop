@@ -245,10 +245,12 @@ function authStateObserver(user) {
         $('#sign-in').hide()
         $('#my-event').show()
         $('#sign-out').show()
+        $('#my-events-error-message').text('')
     } else {
         $('#sign-in').show()
         $('#my-event').hide()
         $('#sign-out').hide()
+        $('#my-events-error-message').text('Sign in to see your events!')
     }
     getMyEvents()
     $('#username').text(getUserName())
