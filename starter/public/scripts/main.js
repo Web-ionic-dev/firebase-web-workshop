@@ -1,6 +1,6 @@
 'use strict'
 
-/* Set up */
+/* ==== Set up ==== */
 
 // Checks that the Firebase SDK has been correctly setup and configured.
 function checkSetup() {
@@ -9,42 +9,56 @@ function checkSetup() {
     }
 }
 
-/* Authentication */
+/* ==== Authentication ==== */
 
-function initFirebaseAuth() {
-    
-}
-
-function signUp(email, password, name) {
-
-}
-
-function signIn(email, password) {
-
-}
-
+/** Sign in with Google. */
 function signInWithGoogle() {
-
+    // TODO 1: Sign in Firebase with credential from the Google user.
 }
 
+/** Sign out. */
 function signOut() {
-
+    // TODO 2: Sign out of Firebase.
 }
 
+/** Initiate firebase auth. */
+function initFirebaseAuth() {
+    // TODO 3: Initialize Firebase to track the auth state changed.
+}
+
+/** To check if the user signed in or not. */
 function isUserSignedIn() {
-    
+    // TODO 4: Check if the user signed in with current user object (if the current user object is not null, then the user has signed in).
 }
 
+/** Get a user ID. */
 function getUserId() {
-    
+    // TODO 5: Get a user ID.
 }
 
+/** Get a username. */
 function getUserName() {
-    
+    // TODO 6: Get a username.
 }
 
+/** Get a user profile picture. */
 function getProfilePicUrl() {
-    
+    // TODO 7: Get a profile picture.
+}
+
+/** Sign up a new user with email, password, and user information. */ 
+function signUp(email, password, name) {
+    // TODO 8: Get a profile picture.
+}
+
+/** Update user display name. */ 
+function updateUserDisplayName(name) {
+    // TODO 9: Update user display name.
+}
+
+/** Sign in with email & password. */ 
+function signIn(email, password) {
+    // TODO 10: Sign in with email & password.
 }
 
 /* Firestore */
