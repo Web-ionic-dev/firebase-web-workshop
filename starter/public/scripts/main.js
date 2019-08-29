@@ -163,17 +163,16 @@ function hideAuthError() {
 
 function authStateObserver(user) {
     if (user) {
-        getMyEvents()
         $('#sign-in').hide()
         $('#my-event').show()
         $('#sign-out').show()
-        $('#username').text(getUserName())
     } else {
         $('#sign-in').show()
         $('#my-event').hide()
         $('#sign-out').hide()
-        $('#username').text('')
     }
+    getMyEvents()
+    $('#username').text(getUserName())
     $('#authModal').modal('hide') 
 }
 
@@ -258,9 +257,9 @@ const EVENT_DETAIL_TEMPLATE =
 '</div>'
 
 function setupEventDetailModal () {
+    $('#eventDetailModal').off('hidden.bs.modal')
     $('#eventDetailModal').on('hidden.bs.modal', function (e) {
         if (unsubscribeEventCard) {
-            console.log('unsubscribeEventCard')
             $('#eventDetailModal .modal-content').remove()
             unsubscribeEventCard() 
         }
