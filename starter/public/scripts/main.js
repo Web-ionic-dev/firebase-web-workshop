@@ -1,5 +1,25 @@
 'use strict'
 
+/* ==== Main ==== */
+
+$(document).ready(function() {
+
+    loadIncludes(function() {
+
+        // set up UI
+        initializeAuthUI() 
+        initialDropdownMenu()
+
+        // Firebase
+        initFirebaseAuth()
+
+        // TODO: load events
+
+        // TODO: request notification permission
+    })
+    
+})
+
 /* ==== Set up ==== */
 
 // Checks that the Firebase SDK has been correctly setup and configured.
@@ -9,7 +29,7 @@ function checkSetup() {
     }
 }
 
-/* ==== Authentication ==== */
+/* ==== Firebase Authentication ==== */
 
 /** Sign in with Google. */
 function signInWithGoogle() {
@@ -61,7 +81,7 @@ function signIn(email, password) {
     // TODO 10: Sign in with email & password.
 }
 
-/* Firestore */
+/* ==== Firebase Cloud Firestore ==== */
 
 function getEvents(filter = 'all') {
 
@@ -83,7 +103,7 @@ function unregisterForEvent(eventId) {
     
 }
 
-/* Cloud Messaging */
+/* ==== Firebase Cloud Messaging ==== */
 
 function requestNotificationsPermissions() {
     
@@ -92,12 +112,12 @@ function requestNotificationsPermissions() {
 function saveMessagingDeviceToken() {
     
 }
-  
 
-/* UI */
+/* ==== UI Helper ==== */
 
-// Sign In / Sign Up
+/* == Authentication == */
 
+/** Initiate authentication UI - add actions to buttons. */ 
 function initializeAuthUI() {
 
     // Add actions to elements
@@ -135,6 +155,7 @@ function initializeAuthUI() {
     }) 
 }
 
+/** Swap to sign in mode handler. */ 
 function swapToSignInMode() {
     $('#signin-form').show()
     $('#signup-form').hide()
@@ -142,6 +163,7 @@ function swapToSignInMode() {
     $('#error-message').hide()
 }
 
+/** Swap to sign up mode handler. */ 
 function swapToSignUpMode() {
     $('#signin-form').hide()
     $('#signup-form').show()
@@ -149,18 +171,21 @@ function swapToSignUpMode() {
     $('#error-message').hide()
 }
 
+/** Display authentication error message. */ 
 function displayAuthError(err) {
     var errorMessageDiv = $('#error-message')
     errorMessageDiv.text(err)
     errorMessageDiv.show()
 }
 
+/** Hide authentication error message. */ 
 function hideAuthError() {
     if ($('#error-message').is(':visible')) {
         $('#error-message').hide()
     }
 }
 
+/** Authentication status changed handler. */ 
 function authStateObserver(user) {
     if (user) {
         $('#sign-in').hide()
@@ -178,9 +203,9 @@ function authStateObserver(user) {
     $('#authModal').modal('hide') 
 }
 
-// Events
+/* == Events == */
 
-// Template for events.
+/** Template for event card. */ 
 const EVENT_TEMPLATE =
 '<div class="col-sm-4 mt-3">'+
     '<div class="card">'+
@@ -193,9 +218,10 @@ const EVENT_TEMPLATE =
     '</div>'+
 '</div>' 
 
+/** Display event card in the list of all events. */ 
 function displayEventCard(id, name, timestamp, description, imageUrl) {
 
-    // use existing or create an event card element
+    // use existing or create a new event card element
     var div = $('#event[data-item-id='+id+']') 
     if (div.length === 0) {
         div = createEventCard(id, name, timestamp, description, imageUrl) 
@@ -208,7 +234,10 @@ function displayEventCard(id, name, timestamp, description, imageUrl) {
     div.find('.description').text(description) 
 }
 
+/** Firebase Cloud Firestore onSnapshot element. */ 
 var unsubscribeEventCard 
+
+/** Create event card with event ID. */ 
 function createEventCard(id) {
 
     // add event id to div element
@@ -221,6 +250,7 @@ function createEventCard(id) {
     cardTitleLabel.click(function() {
         const eventId = $(this).data().id 
         console.log("See detail for:" + eventId) 
+        // save onSnapshot element to be able to unsubscribe later
         unsubscribeEventCard = subscribeEvent(eventId)
     }) 
 
@@ -229,6 +259,7 @@ function createEventCard(id) {
     return div 
 }
 
+/** Remove all event cards from the list. */ 
 function removeAllEventCards() {
     // remove all cards from the list (if any)
     $('div#events').children().each(function(i) {
@@ -236,6 +267,7 @@ function removeAllEventCards() {
     })
 }
 
+/** Template for event detail. */ 
 const EVENT_DETAIL_TEMPLATE = 
 '<div class="modal-content">'+
     '<div class="modal-header">'+
@@ -258,23 +290,15 @@ const EVENT_DETAIL_TEMPLATE =
     '</div>'+
 '</div>'
 
-function setupEventDetailModal () {
-    $('#eventDetailModal').off('hidden.bs.modal')
-    $('#eventDetailModal').on('hidden.bs.modal', function (e) {
-        if (unsubscribeEventCard) {
-            $('#eventDetailModal .modal-content').remove()
-            unsubscribeEventCard() 
-        }
-    })
-}
-
+/** Create event detail with event ID. */ 
 function createEventDetail(id) {
     const content = $(EVENT_DETAIL_TEMPLATE)
     content.attr('data-item-id', id)
     $('#eventDetailModal .modal-dialog').append(content) 
-    setupEventDetailModal()
+    addActionForDismissingEventDetailModal()
 }
 
+/** Display event detail. */ 
 function displayEventDetail(id, name, timestamp, description, imageUrl, attendees, isRegistered) {
 
     var div = $('.modal-content[data-item-id='+id+']') 
@@ -310,6 +334,18 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
     handleRegisterButton(isRegistered)
 }
 
+/** Event detail dismissed handler. */ 
+function addActionForDismissingEventDetailModal () {
+    $('#eventDetailModal').off('hidden.bs.modal')
+    $('#eventDetailModal').on('hidden.bs.modal', function (e) {
+        if (unsubscribeEventCard) {
+            $('#eventDetailModal .modal-content').remove()
+            unsubscribeEventCard() 
+        }
+    })
+}
+
+/** Register button handler. */ 
 function handleRegisterButton(isRegistered) {
     if (isRegistered) {
         // hide register button (if already registered)
@@ -323,8 +359,10 @@ function handleRegisterButton(isRegistered) {
     }
 }
 
+/** Template for attendee profile pics. */ 
 const ATTENDEE_TEMPLATE = '<img src="" class="img-thumbnail rounded float-left">'
 
+/** Display attendees information. */ 
 function displayAttendees(attendees) {
 
     // attendees
@@ -342,14 +380,14 @@ function displayAttendees(attendees) {
         }) 
     }
 }
-
+/** Display attendees profile picture. */ 
 function displayAttendeeProfilePic(imageUrl) {
-
     const img = $(ATTENDEE_TEMPLATE) 
     img.attr('src', imageUrl) 
     $('.modal-body .attendee-list').append(img)
 }
 
+/** Check if user signed in, if not then show error message. */
 function checkIfUserSignInWithMessage() {
     if (isUserSignedIn()) {
         return true
@@ -358,7 +396,7 @@ function checkIfUserSignInWithMessage() {
     return false
 }
 
-// Template for my events.
+/** Template for my event item. */
 const MY_EVENT_TEMPLATE =
 '<div class="media mb-3">'+
     '<img src="/images/temp.png" class="image mr-3" style="width: 180px">'+
@@ -369,6 +407,7 @@ const MY_EVENT_TEMPLATE =
     '</div>'+
 '</div>' 
 
+/** Display my event item. */
 function displayMyEventItem(id, name, timestamp, description, imageUrl) {
     // use existing or create an event card element
     var div = $('#my-events[data-item-id='+id+']') 
@@ -383,6 +422,7 @@ function displayMyEventItem(id, name, timestamp, description, imageUrl) {
     div.find('.description').text(description) 
 }
 
+/** Create my event item with id. */
 function createMyEventItem(id) {
 
     // add event id to div element
@@ -403,6 +443,7 @@ function createMyEventItem(id) {
     return div 
 }
 
+/** Remove all my event items. */
 function removeAllMyEventItems() {
     // remove all events from the list (if any)
     $('div#my-events').children().each(function(i) {
@@ -410,22 +451,26 @@ function removeAllMyEventItems() {
     })
 }
 
+/** Convert timestamp to formatted datetime. */
 function convertedDate(timestamp) {
     let date = timestamp.toDate()
     return moment(date).format('DD/MM/YYYY・hh:mm a')
 }
 
-// Dropdown
+/* == Dropdown == */
 
-function addActionsForDropdownMenu() {
+/** Initiate dropdown list - add action for dropdown. */
+function initialDropdownMenu() {
     $('#typeDropdownMenu').change(handleForDropdownChanged)
 }
 
+/** Dropdown menu changed handler. */
 function handleForDropdownChanged() {
     const type = $('#typeDropdownMenu').val() 
     getEvents(type) 
 }
 
+/** Load include files. */
 function loadIncludes(callback) {
     var deferreds = [] 
     // Create a deferred for all includes
@@ -439,21 +484,3 @@ function loadIncludes(callback) {
     // Callback when all deferreds are done
     $.when.apply(null, deferreds).done(callback) 
 }
-
-/* Main */
-
-$(document).ready(function() {
-    loadIncludes(function() {
-
-        // set up UI
-        initializeAuthUI() 
-        addActionsForDropdownMenu()
-
-        // Firebase
-        initFirebaseAuth()
-
-        // TODO: load events
-
-        // TODO: request notification permission
-    })
-})
