@@ -290,14 +290,6 @@ const EVENT_DETAIL_TEMPLATE =
     '</div>'+
 '</div>'
 
-/** Create event detail with event ID. */ 
-function createEventDetail(id) {
-    const content = $(EVENT_DETAIL_TEMPLATE)
-    content.attr('data-item-id', id)
-    $('#eventDetailModal .modal-dialog').append(content) 
-    addActionForDismissingEventDetailModal()
-}
-
 /** Display event detail. */ 
 function displayEventDetail(id, name, timestamp, description, imageUrl, attendees, isRegistered) {
 
@@ -332,6 +324,14 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
     })
 
     handleRegisterButton(isRegistered)
+}
+
+/** Create event detail with event ID. */ 
+function createEventDetail(id) {
+    const content = $(EVENT_DETAIL_TEMPLATE)
+    content.attr('data-item-id', id)
+    $('#eventDetailModal .modal-dialog').append(content) 
+    addActionForDismissingEventDetailModal()
 }
 
 /** Event detail dismissed handler. */ 
