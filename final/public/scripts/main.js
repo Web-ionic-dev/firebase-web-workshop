@@ -35,9 +35,7 @@ function signUp(email, password, name) {
 
 function signIn(email, password) {
     console.log('sign in with: ' + email + ' ' + password) 
-    firebase.auth().signInWithEmailAndPassword(email, password).then(function(user) {
-        console.log(user) 
-    }).catch(function(error) {
+    firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
         var errorMessage = error.message
         displayAuthError(errorMessage)
     }) 
@@ -62,13 +60,11 @@ function getUserId() {
 }
 
 function getUserName() {
-    if (!isUserSignedIn) return ''
-    return firebase.auth().currentUser.displayName || ''
+    return isUserSignedIn() ? (firebase.auth().currentUser.displayName || '') : ''
 }
 
 function getProfilePicUrl() {
-    if (!isUserSignedIn) return ''
-    return firebase.auth().currentUser.photoURL || '/images/profile_placeholder.png' 
+    return isUserSignedIn() ? (firebase.auth().currentUser.photoURL || '/images/profile_placeholder.png') : ''
 }
 
 /* Firestore */
