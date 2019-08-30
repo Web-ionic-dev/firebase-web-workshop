@@ -71,19 +71,21 @@ function getProfilePicUrl() {
 
 function getEvents(filter = 'all') {
 
+    // remove all event cards
     removeAllEventCards() 
 
+    // Create the query
     var eventList = firebase.firestore().collection('events')
 
     if(filter !== 'all') {
         eventList = firebase.firestore().collection('events').where('type','==', filter)
     }
 
+    // Get data
     eventList.get().then(function(snapshot) {
-        const events = snapshot.docs.map ( doc => (
+        const events = snapshot.docs.map (doc => (
             {id: doc.id, ...doc.data()}
         ))
-        console.log('eventList.get() ' + events)
         events.forEach(event => {
             displayEventCard(event.id, event.name, event.startTime, event.description, event.imageUrl)
         })
@@ -91,12 +93,10 @@ function getEvents(filter = 'all') {
 }
 
 function subscribeEvent(eventId) {
-
-    const unsubscribe = firebase.firestore().collection('events').doc(eventId).onSnapshot(function(doc) {
-        
+    const docRef = firebase.firestore().collection('events').doc(eventId)
+    const unsubscribe = docRef.onSnapshot(function(doc) {
         const eventId = doc.id
         const event = doc.data()
-        console.log('subscribeEvent: ' + eventId)
         // check if user is already registered for the event
         const attendees = event.attendees ? event.attendees : []
         var isRegistered = false
@@ -104,20 +104,13 @@ function subscribeEvent(eventId) {
             const attendeesId = attendees.map (attendee => attendee.userId)
             isRegistered = attendeesId.includes(getUserId())
         }
-        
         // then display data
         displayEventDetail(eventId, event.name, event.startTime, event.description, event.imageUrl, attendees, isRegistered)
     }) 
     return unsubscribe 
 }
 
-function getMyEvents() {
-
-    const user = {
-        userId: getUserId(),
-        profilePicUrl: getProfilePicUrl()
-    }
-    
+function getMyEvents(user) {
     console.log('load my event with: ' + user)
     firebase.firestore().collection('events').where('attendees', 'array-contains', user).onSnapshot(function(snapshot) {
         const events = snapshot.docs.map ( doc => (
@@ -130,17 +123,15 @@ function getMyEvents() {
     }) 
 }
 
-function registerForEvent(eventId) {
+function registerForEvent(eventId, user) {
     console.log('register for: ' + eventId) 
     const eventRef = firebase.firestore().collection('events').doc(eventId)
-    const user =  { profilePicUrl: getProfilePicUrl(), userId: getUserId() }
     eventRef.update({ 'attendees': firebase.firestore.FieldValue.arrayUnion(user)})
 }
 
-function unregisterForEvent(eventId) {
+function unregisterForEvent(eventId, user) {
     console.log('unregister for: ' + eventId) 
     const eventRef = firebase.firestore().collection('events').doc(eventId)
-    const user =  { profilePicUrl: getProfilePicUrl(), userId: getUserId() }
     eventRef.update({ 'attendees': firebase.firestore.FieldValue.arrayRemove(user)})
 }
 
@@ -167,7 +158,7 @@ function saveMessagingDeviceToken() {
     }).catch(function(error){
       console.error('Unable to get messaging token.', error) 
     }) 
-  }
+}
   
 
 /* UI */
@@ -179,7 +170,7 @@ function initializeAuthUI() {
     // Add actions to elements
     $('#sign-out').click(signOut)
     $('#swapToSignUp').click(swapToSignUpMode)
-    $('#swapToSignIn').click(swapToSignUpMode)
+    $('#swapToSignIn').click(swapToSignInMode)
     $('#signInInputEmail, #signInInputPassword, #signUpInputEmail, #signUpInputPassword, #signUpInputName').change(hideAuthError) 
 
     $('#signin-form').submit(function(){
@@ -252,7 +243,7 @@ function authStateObserver(user) {
         $('#sign-out').hide()
         $('#my-events-error-message').text('Sign in to see your events!')
     }
-    getMyEvents()
+    getMyEvents(getUser())
     $('#username').text(getUserName())
     $('#authModal').modal('hide') 
 }
@@ -375,14 +366,14 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
     $('#eventDetailModal .register-button').off('click') 
     $('#eventDetailModal .register-button').on('click', function() {
         if (checkIfUserSignInWithMessage()) {
-            registerForEvent(id) 
+            registerForEvent(id, getUser()) 
         }
     })
 
     $('#eventDetailModal .unregister-button').off('click') 
     $('#eventDetailModal .unregister-button').on('click', function() {
         if (checkIfUserSignInWithMessage()) {
-            unregisterForEvent(id) 
+            unregisterForEvent(id, getUser()) 
         }
     })
 
@@ -489,11 +480,6 @@ function removeAllMyEventItems() {
     })
 }
 
-function convertedDate(timestamp) {
-    let date = timestamp.toDate()
-    return moment(date).format('DD/MM/YYYY・hh:mm a')
-}
-
 // Dropdown
 
 function addActionsForDropdownMenu() {
@@ -505,6 +491,24 @@ function handleForDropdownChanged() {
     getEvents(type) 
 }
 
+/* ==== Helper ==== */
+
+/** Convert timestamp to formatted datetime. */
+function convertedDate(timestamp) {
+    let date = timestamp.toDate()
+    return moment(date).format('DD/MM/YYYY・hh:mm a')
+}
+
+/** Get user. */
+function getUser() {
+    const user = {
+        userId: getUserId(),
+        profilePicUrl: getProfilePicUrl()
+    }
+    return user
+}
+
+/** Load include files. */
 function loadIncludes(callback) {
     var deferreds = [] 
     // Create a deferred for all includes
