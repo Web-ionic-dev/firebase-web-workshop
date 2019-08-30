@@ -15,7 +15,7 @@ $(document).ready(function() {
 
         // TODO: load events
 
-        // TODO: request notification permission
+        // TODO: request notification permissions
     })
     
 })
@@ -83,34 +83,41 @@ function signIn(email, password) {
 
 /* ==== Firebase Cloud Firestore ==== */
 
+/** Get events with filter. */ 
 function getEvents(filter = 'all') {
-
+    // TODO 11: Get events.
 }
 
+/** Listen for realtime updates of event with event ID. */
 function subscribeEvent(eventId) {
-
+    // TODO 12: Subscribe event.
 }
 
-function getMyEvents() {
-
+/** Register for event with event ID. */
+function registerForEvent(eventId, user) {
+    // TODO 13: Register for event.
 }
 
-function registerForEvent(eventId) {
-    
+/** Unregister for event  with event ID. */
+function unregisterForEvent(eventId, user) {
+    // TODO 14: Unregister for event.
 }
 
-function unregisterForEvent(eventId) {
-    
+/** Get my events. */
+function getMyEvents(user) {
+    // TODO 15: Get my events.
 }
 
 /* ==== Firebase Cloud Messaging ==== */
 
+/** Requests permission to show notifications. */
 function requestNotificationsPermissions() {
-    
+    // TODO 16: Request permissions to send notifications.
 }
 
-function saveMessagingDeviceToken() {
-    
+/** Get the messaging device token. */
+function getMessagingDeviceToken() {
+    // TODO 17: Get the device token.
 }
 
 /* ==== UI Helper ==== */
@@ -123,7 +130,7 @@ function initializeAuthUI() {
     // Add actions to elements
     $('#sign-out').click(signOut)
     $('#swapToSignUp').click(swapToSignUpMode)
-    $('#swapToSignIn').click(swapToSignUpMode)
+    $('#swapToSignIn').click(swapToSignInMode)
     $('#signInInputEmail, #signInInputPassword, #signUpInputEmail, #signUpInputPassword, #signUpInputName').change(hideAuthError) 
 
     $('#signin-form').submit(function(){
@@ -198,7 +205,7 @@ function authStateObserver(user) {
         $('#sign-out').hide()
         $('#my-events-error-message').text('Sign in to see your events!')
     }
-    getMyEvents()
+    getMyEvents(getUser())
     $('#username').text(getUserName())
     $('#authModal').modal('hide') 
 }
@@ -312,14 +319,16 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
     $('#eventDetailModal .register-button').off('click') 
     $('#eventDetailModal .register-button').on('click', function() {
         if (checkIfUserSignInWithMessage()) {
-            registerForEvent(id) 
+            // Register for event.
+            registerForEvent(id, getUser()) 
         }
     })
 
     $('#eventDetailModal .unregister-button').off('click') 
     $('#eventDetailModal .unregister-button').on('click', function() {
         if (checkIfUserSignInWithMessage()) {
-            unregisterForEvent(id) 
+            // Unregister for event.
+            unregisterForEvent(id, getUser()) 
         }
     })
 
@@ -451,12 +460,6 @@ function removeAllMyEventItems() {
     })
 }
 
-/** Convert timestamp to formatted datetime. */
-function convertedDate(timestamp) {
-    let date = timestamp.toDate()
-    return moment(date).format('DD/MM/YYYY・hh:mm a')
-}
-
 /* == Dropdown == */
 
 /** Initiate dropdown list - add action for dropdown. */
@@ -468,6 +471,23 @@ function initialDropdownMenu() {
 function handleForDropdownChanged() {
     const type = $('#typeDropdownMenu').val() 
     getEvents(type) 
+}
+
+/* ==== Helper ==== */
+
+/** Convert timestamp to formatted datetime. */
+function convertedDate(timestamp) {
+    let date = timestamp.toDate()
+    return moment(date).format('DD/MM/YYYY・hh:mm a')
+}
+
+/** Get user. */
+function getUser() {
+    const user = {
+        userId: getUserId(),
+        profilePicUrl: getProfilePicUrl()
+    }
+    return user
 }
 
 /** Load include files. */
