@@ -1,6 +1,31 @@
-'use strict' 
+'use strict'
 
-/* Set up */
+/* ==== Main ==== */
+
+$(document).ready(function() {
+
+    loadIncludes(function() {
+
+        // set up UI
+        initializeAuthUI() 
+        initialDropdownMenu()
+
+        // Firebase
+        checkSetup()
+
+        // observe auth state changed
+        initFirebaseAuth()
+
+        //load events
+        getEvents()
+
+        // request notification permissions
+        requestNotificationsPermissions()
+    })
+    
+})
+
+/* ==== Set up ==== */
 
 // Checks that the Firebase SDK has been correctly setup and configured.
 function checkSetup() {
@@ -9,67 +34,95 @@ function checkSetup() {
     }
 }
 
-/* Authentication */
+/* ==== Firebase Authentication ==== */
 
+/** Sign in with Google. */
+function signInWithGoogle() {
+    // 1: Sign in Firebase with credential from the Google user.
+    const provider = new firebase.auth.GoogleAuthProvider()
+    firebase.auth().signInWithPopup(provider)
+}
+
+/** Sign out. */
+function signOut() {
+    // 2: Sign out of Firebase.
+    firebase.auth().signOut()
+}
+
+/** Initiate firebase auth. */
 function initFirebaseAuth() {
+    // 3: Initialize Firebase to track the auth state changed.
     firebase.auth().onAuthStateChanged(authStateObserver)
 }
 
-function signUp(email, password, name) {
-    console.log('sign up with: ' + email + ' ' + password + ' ' + name) 
-    firebase.auth().createUserWithEmailAndPassword(email, password).then(function(user) {
-        firebase.auth().currentUser.updateProfile({
-          displayName: name
-        }).then(function(){
-            console.log('update profile success')
-            authStateObserver(user)
-        }).catch(function(error) {
-            console.log('update profile error')
-        })
-    }).catch(function(error) {
-        console.log('sign up error: ' + error)
-        var errorMessage = error.message
-        displayAuthError(errorMessage)
-    }) 
-}
-
-function signIn(email, password) {
-    console.log('sign in with: ' + email + ' ' + password) 
-    firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
-        var errorMessage = error.message
-        displayAuthError(errorMessage)
-    }) 
-    
-}
-
-function signInWithGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider() 
-    firebase.auth().signInWithPopup(provider) 
-}
-
-function signOut() {
-    firebase.auth().signOut() 
-}
-
+/** To check if the user signed in or not. */
 function isUserSignedIn() {
+    // 4: Check if the user signed in with current user object (if the current user object is not null, then the user has signed in).
     return !!firebase.auth().currentUser
 }
 
+/** Get a user ID. */
 function getUserId() {
+    // 5: Get a user ID.
     return isUserSignedIn() ? firebase.auth().currentUser.uid : ''
 }
 
+/** Get a username. */
 function getUserName() {
+    // 6: Get a username.
     return isUserSignedIn() ? (firebase.auth().currentUser.displayName || '') : ''
 }
 
+/** Get a user profile picture. */
 function getProfilePicUrl() {
+    // 7: Get a profile picture.
     return isUserSignedIn() ? (firebase.auth().currentUser.photoURL || '/images/profile_placeholder.png') : ''
+
 }
 
-/* Firestore */
+/** Sign up a new user with email, password, and user information. */ 
+function signUp(email, password, name) {
+    // 8: Get a profile picture.
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then(function(result) {
+       // update user profile
+        console.log('create user profile: ' + JSON.stringify(result))
+        updateUserDisplayName(result.user, name)
+    }).catch(function(error) {
+       var errorMessage = error.message;
+       displayAuthError(errorMessage);
+    });
 
+}
+
+/** Update user display name. */ 
+function updateUserDisplayName(user, name) {
+    // 9: Update user display name.
+    console.log('update user profile: ' + JSON.stringify(user))
+    user.updateProfile({
+        displayName: name
+    }).then(function() {
+        authStateObserver(user)
+    }).catch(function(error) {
+        console.log('update profile - failed: ' + error)
+    })
+}
+
+/** Sign in with email & password. */ 
+function signIn(email, password) {
+    // 10: Sign in with email & password.
+    firebase.auth().signInWithEmailAndPassword(email, password)
+    .catch(function(error) {
+        var errorMessage = error.message
+        displayAuthError(errorMessage)
+    })
+}
+
+/* ==== Firebase Cloud Firestore ==== */
+
+/** Get events with filter. */ 
 function getEvents(filter = 'all') {
+    // 11: Get events.
 
     // remove all event cards
     removeAllEventCards() 
@@ -77,6 +130,7 @@ function getEvents(filter = 'all') {
     // Create the query
     var eventList = firebase.firestore().collection('events')
 
+    // Create filter query
     if(filter !== 'all') {
         eventList = firebase.firestore().collection('events').where('type','==', filter)
     }
@@ -89,10 +143,12 @@ function getEvents(filter = 'all') {
         events.forEach(event => {
             displayEventCard(event.id, event.name, event.startTime, event.description, event.imageUrl)
         })
-    }) 
+    })
 }
 
+/** Listen for realtime updates of event with event ID. */
 function subscribeEvent(eventId) {
+    // 12: Subscribe event.
     const docRef = firebase.firestore().collection('events').doc(eventId)
     const unsubscribe = docRef.onSnapshot(function(doc) {
         const eventId = doc.id
@@ -107,11 +163,26 @@ function subscribeEvent(eventId) {
         // then display data
         displayEventDetail(eventId, event.name, event.startTime, event.description, event.imageUrl, attendees, isRegistered)
     }) 
-    return unsubscribe 
+    return unsubscribe
 }
 
+/** Register for event with event ID. */
+function registerForEvent(eventId, user) {
+    // 13: Register for event.
+    const eventRef = firebase.firestore().collection('events').doc(eventId)
+    eventRef.update({ 'attendees': firebase.firestore.FieldValue.arrayUnion(user)})
+}
+
+/** Unregister for event  with event ID. */
+function unregisterForEvent(eventId, user) {
+    // 14: Unregister for event.
+    const eventRef = firebase.firestore().collection('events').doc(eventId)
+    eventRef.update({ 'attendees': firebase.firestore.FieldValue.arrayRemove(user)})
+}
+
+/** Get my events. */
 function getMyEvents(user) {
-    console.log('load my event with: ' + user)
+    // 15: Get my events.
     firebase.firestore().collection('events').where('attendees', 'array-contains', user).onSnapshot(function(snapshot) {
         const events = snapshot.docs.map ( doc => (
             {id: doc.id, ...doc.data()}
@@ -120,51 +191,42 @@ function getMyEvents(user) {
         events.forEach(event => {
             displayMyEventItem(event.id, event.name, event.startTime, event.description, event.imageUrl)
         })
-    }) 
+    })
 }
 
-function registerForEvent(eventId, user) {
-    console.log('register for: ' + eventId) 
-    const eventRef = firebase.firestore().collection('events').doc(eventId)
-    eventRef.update({ 'attendees': firebase.firestore.FieldValue.arrayUnion(user)})
-}
+/* ==== Firebase Cloud Messaging ==== */
 
-function unregisterForEvent(eventId, user) {
-    console.log('unregister for: ' + eventId) 
-    const eventRef = firebase.firestore().collection('events').doc(eventId)
-    eventRef.update({ 'attendees': firebase.firestore.FieldValue.arrayRemove(user)})
-}
-
-/* Cloud Messaging */
-
+/** Requests permission to show notifications. */
 function requestNotificationsPermissions() {
-    console.log('Requesting notifications permission...') 
+    // 16: Request permissions to send notifications.
     firebase.messaging().requestPermission().then(function() {
-      // Notification permission granted.
-      saveMessagingDeviceToken() 
+        // Notification permission granted.
+        getMessagingDeviceToken() 
     }).catch(function(error) {
-      console.error('Unable to get permission to notify.', error) 
-    }) 
-  }
-
-function saveMessagingDeviceToken() {
-    firebase.messaging().getToken().then(function(currentToken) {
-      if (currentToken) {
-        console.log('Got FCM device token:', currentToken) 
-      } else {
-        // Need to request permissions to show notifications.
-        requestNotificationsPermissions() 
-      }
-    }).catch(function(error){
-      console.error('Unable to get messaging token.', error) 
-    }) 
+        console.error('Unable to get permission to notify.', error) 
+    })
 }
-  
 
-/* UI */
+/** Get the messaging device token. */
+function getMessagingDeviceToken() {
+    // 17: Get the device token.
+    firebase.messaging().getToken().then(function(currentToken) {
+        if (currentToken) {
+          console.log('Got FCM device token:', currentToken) 
+        } else {
+          // Need to request permissions to show notifications.
+          requestNotificationsPermissions() 
+        }
+    }).catch(function(error){
+        console.error('Unable to get messaging token.', error) 
+    })
+}
 
-// Sign In / Sign Up
+/* ==== UI Helper ==== */
 
+/* == Authentication == */
+
+/** Initiate authentication UI - add actions to buttons. */ 
 function initializeAuthUI() {
 
     // Add actions to elements
@@ -174,7 +236,6 @@ function initializeAuthUI() {
     $('#signInInputEmail, #signInInputPassword, #signUpInputEmail, #signUpInputPassword, #signUpInputName').change(hideAuthError) 
 
     $('#signin-form').submit(function(){
-        console.log('sign in submmitted')
         const email = $('#signInInputEmail').val()
         const password = $('#signInInputPassword').val()
         if (email && password) {
@@ -183,11 +244,9 @@ function initializeAuthUI() {
             displayAuthError('Please enter all the required information')
         }
         event.preventDefault()
-
     }) 
 
     $('#signup-form').submit(function(){
-        console.log('sign up submmitted') 
         const email = $('#signUpInputEmail').val() 
         const password = $('#signUpInputPassword').val() 
         const name = $('#signUpInputName').val() 
@@ -205,6 +264,7 @@ function initializeAuthUI() {
     }) 
 }
 
+/** Swap to sign in mode handler. */ 
 function swapToSignInMode() {
     $('#signin-form').show()
     $('#signup-form').hide()
@@ -212,6 +272,7 @@ function swapToSignInMode() {
     $('#error-message').hide()
 }
 
+/** Swap to sign up mode handler. */ 
 function swapToSignUpMode() {
     $('#signin-form').hide()
     $('#signup-form').show()
@@ -219,18 +280,21 @@ function swapToSignUpMode() {
     $('#error-message').hide()
 }
 
+/** Display authentication error message. */ 
 function displayAuthError(err) {
     var errorMessageDiv = $('#error-message')
     errorMessageDiv.text(err)
     errorMessageDiv.show()
 }
 
+/** Hide authentication error message. */ 
 function hideAuthError() {
     if ($('#error-message').is(':visible')) {
         $('#error-message').hide()
     }
 }
 
+/** Authentication status changed handler. */ 
 function authStateObserver(user) {
     if (user) {
         $('#sign-in').hide()
@@ -248,9 +312,9 @@ function authStateObserver(user) {
     $('#authModal').modal('hide') 
 }
 
-// Events
+/* == Events == */
 
-// Template for events.
+/** Template for event card. */ 
 const EVENT_TEMPLATE =
 '<div class="col-sm-4 mt-3">'+
     '<div class="card">'+
@@ -263,9 +327,10 @@ const EVENT_TEMPLATE =
     '</div>'+
 '</div>' 
 
+/** Display event card in the list of all events. */ 
 function displayEventCard(id, name, timestamp, description, imageUrl) {
 
-    // use existing or create an event card element
+    // use existing or create a new event card element
     var div = $('#event[data-item-id='+id+']') 
     if (div.length === 0) {
         div = createEventCard(id, name, timestamp, description, imageUrl) 
@@ -278,7 +343,10 @@ function displayEventCard(id, name, timestamp, description, imageUrl) {
     div.find('.description').text(description) 
 }
 
+/** Firebase Cloud Firestore onSnapshot element. */ 
 var unsubscribeEventCard 
+
+/** Create event card with event ID. */ 
 function createEventCard(id) {
 
     // add event id to div element
@@ -291,6 +359,7 @@ function createEventCard(id) {
     cardTitleLabel.click(function() {
         const eventId = $(this).data().id 
         console.log("See detail for:" + eventId) 
+        // save onSnapshot element to be able to unsubscribe later
         unsubscribeEventCard = subscribeEvent(eventId)
     }) 
 
@@ -299,6 +368,7 @@ function createEventCard(id) {
     return div 
 }
 
+/** Remove all event cards from the list. */ 
 function removeAllEventCards() {
     // remove all cards from the list (if any)
     $('div#events').children().each(function(i) {
@@ -306,6 +376,7 @@ function removeAllEventCards() {
     })
 }
 
+/** Template for event detail. */ 
 const EVENT_DETAIL_TEMPLATE = 
 '<div class="modal-content">'+
     '<div class="modal-header">'+
@@ -328,23 +399,7 @@ const EVENT_DETAIL_TEMPLATE =
     '</div>'+
 '</div>'
 
-function setupEventDetailModal () {
-    $('#eventDetailModal').off('hidden.bs.modal')
-    $('#eventDetailModal').on('hidden.bs.modal', function (e) {
-        if (unsubscribeEventCard) {
-            $('#eventDetailModal .modal-content').remove()
-            unsubscribeEventCard() 
-        }
-    })
-}
-
-function createEventDetail(id) {
-    const d = $(EVENT_DETAIL_TEMPLATE)
-    d.attr('data-item-id', id)
-    $('#eventDetailModal .modal-dialog').append(d) 
-    setupEventDetailModal()
-}
-
+/** Display event detail. */ 
 function displayEventDetail(id, name, timestamp, description, imageUrl, attendees, isRegistered) {
 
     var div = $('.modal-content[data-item-id='+id+']') 
@@ -366,6 +421,7 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
     $('#eventDetailModal .register-button').off('click') 
     $('#eventDetailModal .register-button').on('click', function() {
         if (checkIfUserSignInWithMessage()) {
+            // Register for event.
             registerForEvent(id, getUser()) 
         }
     })
@@ -373,6 +429,7 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
     $('#eventDetailModal .unregister-button').off('click') 
     $('#eventDetailModal .unregister-button').on('click', function() {
         if (checkIfUserSignInWithMessage()) {
+            // Unregister for event.
             unregisterForEvent(id, getUser()) 
         }
     })
@@ -380,6 +437,26 @@ function displayEventDetail(id, name, timestamp, description, imageUrl, attendee
     handleRegisterButton(isRegistered)
 }
 
+/** Create event detail with event ID. */ 
+function createEventDetail(id) {
+    const content = $(EVENT_DETAIL_TEMPLATE)
+    content.attr('data-item-id', id)
+    $('#eventDetailModal .modal-dialog').append(content) 
+    addActionForDismissingEventDetailModal()
+}
+
+/** Event detail dismissed handler. */ 
+function addActionForDismissingEventDetailModal () {
+    $('#eventDetailModal').off('hidden.bs.modal')
+    $('#eventDetailModal').on('hidden.bs.modal', function (e) {
+        if (unsubscribeEventCard) {
+            $('#eventDetailModal .modal-content').remove()
+            unsubscribeEventCard() 
+        }
+    })
+}
+
+/** Register button handler. */ 
 function handleRegisterButton(isRegistered) {
     if (isRegistered) {
         // hide register button (if already registered)
@@ -393,8 +470,10 @@ function handleRegisterButton(isRegistered) {
     }
 }
 
+/** Template for attendee profile pics. */ 
 const ATTENDEE_TEMPLATE = '<img src="" class="img-thumbnail rounded float-left">'
 
+/** Display attendees information. */ 
 function displayAttendees(attendees) {
 
     // attendees
@@ -412,14 +491,14 @@ function displayAttendees(attendees) {
         }) 
     }
 }
-
+/** Display attendees profile picture. */ 
 function displayAttendeeProfilePic(imageUrl) {
-
     const img = $(ATTENDEE_TEMPLATE) 
     img.attr('src', imageUrl) 
     $('.modal-body .attendee-list').append(img)
 }
 
+/** Check if user signed in, if not then show error message. */
 function checkIfUserSignInWithMessage() {
     if (isUserSignedIn()) {
         return true
@@ -428,7 +507,7 @@ function checkIfUserSignInWithMessage() {
     return false
 }
 
-// Template for my events.
+/** Template for my event item. */
 const MY_EVENT_TEMPLATE =
 '<div class="media mb-3">'+
     '<img src="/images/temp.png" class="image mr-3" style="width: 180px">'+
@@ -439,6 +518,7 @@ const MY_EVENT_TEMPLATE =
     '</div>'+
 '</div>' 
 
+/** Display my event item. */
 function displayMyEventItem(id, name, timestamp, description, imageUrl) {
     // use existing or create an event card element
     var div = $('#my-events[data-item-id='+id+']') 
@@ -453,6 +533,7 @@ function displayMyEventItem(id, name, timestamp, description, imageUrl) {
     div.find('.description').text(description) 
 }
 
+/** Create my event item with id. */
 function createMyEventItem(id) {
 
     // add event id to div element
@@ -473,6 +554,7 @@ function createMyEventItem(id) {
     return div 
 }
 
+/** Remove all my event items. */
 function removeAllMyEventItems() {
     // remove all events from the list (if any)
     $('div#my-events').children().each(function(i) {
@@ -480,12 +562,14 @@ function removeAllMyEventItems() {
     })
 }
 
-// Dropdown
+/* == Dropdown == */
 
-function addActionsForDropdownMenu() {
+/** Initiate dropdown list - add action for dropdown. */
+function initialDropdownMenu() {
     $('#typeDropdownMenu').change(handleForDropdownChanged)
 }
 
+/** Dropdown menu changed handler. */
 function handleForDropdownChanged() {
     const type = $('#typeDropdownMenu').val() 
     getEvents(type) 
@@ -522,27 +606,3 @@ function loadIncludes(callback) {
     // Callback when all deferreds are done
     $.when.apply(null, deferreds).done(callback) 
 }
-
-/* Main */
-
-$(document).ready(function() {
-    loadIncludes(function() {
-        // initialize Firebase
-        initializeAuthUI() 
-        initFirebaseAuth() 
-    })
-}) 
-
-addActionsForDropdownMenu() 
-
-// isUserSignIn()
-
-// getUID()
-
-// TODO: checkSetup() 
-
-getEvents() 
-
-// loadMyEvents() 
-
-requestNotificationsPermissions() 
