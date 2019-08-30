@@ -68,11 +68,11 @@ function getProfilePicUrl() {
 
 /** Sign up a new user with email, password, and user information. */ 
 function signUp(email, password, name) {
-    // TODO 8: Get a profile picture.
+    // TODO 8: Sign up a new user with email, password, then update the user.
 }
 
 /** Update user display name. */ 
-function updateUserDisplayName(name) {
+function updateUserDisplayName(user, name) {
     // TODO 9: Update user display name.
 }
 
